@@ -1,0 +1,527 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4B541FC119A5E87B0034E063 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B541FBE19A5E87B0034E063 /* main.cpp */; };
+		4B541FC519A5E9610034E063 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B541FC419A5E9610034E063 /* Parser.cpp */; };
+		4B737C1519A2A182008B01C3 /* libncurses.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B737C1419A2A182008B01C3 /* libncurses.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4B737C0619A1F335008B01C3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4B541FBE19A5E87B0034E063 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = Sources/main.cpp; sourceTree = "<group>"; };
+		4B541FC319A5E9610034E063 /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = Sources/Parser.h; sourceTree = "<group>"; };
+		4B541FC419A5E9610034E063 /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = Sources/Parser.cpp; sourceTree = "<group>"; };
+		4B737C0819A1F335008B01C3 /* Parser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Parser; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B737C1419A2A182008B01C3 /* libncurses.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libncurses.dylib; path = usr/lib/libncurses.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4B737C0519A1F335008B01C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B737C1519A2A182008B01C3 /* libncurses.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4B541FBC19A5E8660034E063 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				4B737C1419A2A182008B01C3 /* libncurses.dylib */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		4B541FBD19A5E86C0034E063 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				4B541FBE19A5E87B0034E063 /* main.cpp */,
+				4B541FC319A5E9610034E063 /* Parser.h */,
+				4B541FC419A5E9610034E063 /* Parser.cpp */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		4B737BFF19A1F335008B01C3 = {
+			isa = PBXGroup;
+			children = (
+				4B541FBD19A5E86C0034E063 /* Sources */,
+				4B541FBC19A5E8660034E063 /* Libraries */,
+				4B737C0919A1F335008B01C3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4B737C0919A1F335008B01C3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4B737C0819A1F335008B01C3 /* Parser */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4B737C0719A1F335008B01C3 /* Parser */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B737C1119A1F335008B01C3 /* Build configuration list for PBXNativeTarget "Parser" */;
+			buildPhases = (
+				4B737C0419A1F335008B01C3 /* Sources */,
+				4B737C0519A1F335008B01C3 /* Frameworks */,
+				4B737C0619A1F335008B01C3 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Parser;
+			productName = PrintFunctionNames;
+			productReference = 4B737C0819A1F335008B01C3 /* Parser */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4B737C0019A1F335008B01C3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Simon Geilfus";
+			};
+			buildConfigurationList = 4B737C0319A1F335008B01C3 /* Build configuration list for PBXProject "Parser" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4B737BFF19A1F335008B01C3;
+			productRefGroup = 4B737C0919A1F335008B01C3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4B737C0719A1F335008B01C3 /* Parser */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4B737C0419A1F335008B01C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B541FC519A5E9610034E063 /* Parser.cpp in Sources */,
+				4B541FC119A5E87B0034E063 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4B737C0F19A1F335008B01C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					Includes,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4B737C1019A1F335008B01C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					Includes,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4B737C1219A1F335008B01C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_ENABLE_CPP_RTTI = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"/Frameworks/Clang/clang 3.4.2/include\"",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = (
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclang.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangAnalysis.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangARCMigrate.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangAST.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangASTMatchers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangBasic.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangDriver.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangDynamicASTMatchers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangEdit.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFormat.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFrontendTool.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangIndex.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangLex.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangParse.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangRewriteCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangRewriteFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangSema.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangSerialization.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerCheckers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangTooling.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64AsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Disassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Utils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAnalysis.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMBitReader.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMBitWriter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCppBackendCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCppBackendInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMDebugInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMExecutionEngine.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInstCombine.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInstrumentation.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInterpreter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMipa.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMipo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMIRReader.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMJIT.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMLinker.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMLTO.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMC.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCJIT.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMObjCARCOpts.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMObject.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMOption.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMRuntimeDyld.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMScalarOpts.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSelectionDAG.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSupport.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTableGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTarget.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTransformUtils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMVectorize.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86AsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Disassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Utils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreInfo.a\"",
+					Libraries/macosx/libboost_system.a,
+					Libraries/macosx/libboost_filesystem.a,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4B737C1319A1F335008B01C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_ENABLE_CPP_RTTI = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"/Frameworks/Clang/clang 3.4.2/include\"",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = (
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclang.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangAnalysis.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangARCMigrate.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangAST.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangASTMatchers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangBasic.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangDriver.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangDynamicASTMatchers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangEdit.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFormat.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangFrontendTool.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangIndex.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangLex.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangParse.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangRewriteCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangRewriteFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangSema.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangSerialization.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerCheckers.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangStaticAnalyzerFrontend.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libclangTooling.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64AsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Disassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAArch64Utils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAnalysis.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMARMInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMBitReader.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMBitWriter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCore.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCppBackendCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMCppBackendInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMDebugInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMExecutionEngine.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMHexagonInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInstCombine.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInstrumentation.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMInterpreter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMipa.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMipo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMIRReader.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMJIT.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMLinker.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMLTO.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMC.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCJIT.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMCParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMipsInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMMSP430Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMNVPTXInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMObjCARCOpts.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMObject.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMOption.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMPowerPCInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMR600Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMRuntimeDyld.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMScalarOpts.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSelectionDAG.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSparcInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSupport.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZAsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMSystemZInfo.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTableGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTarget.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMTransformUtils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMVectorize.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86AsmParser.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86AsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86CodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Desc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Disassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Info.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMX86Utils.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreAsmPrinter.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreCodeGen.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreDesc.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreDisassembler.a\"",
+					"\"/Frameworks/Clang/clang 3.4.2/lib/libLLVMXCoreInfo.a\"",
+					Libraries/macosx/libboost_system.a,
+					Libraries/macosx/libboost_filesystem.a,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4B737C0319A1F335008B01C3 /* Build configuration list for PBXProject "Parser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B737C0F19A1F335008B01C3 /* Debug */,
+				4B737C1019A1F335008B01C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4B737C1119A1F335008B01C3 /* Build configuration list for PBXNativeTarget "Parser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B737C1219A1F335008B01C3 /* Debug */,
+				4B737C1319A1F335008B01C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4B737C0019A1F335008B01C3 /* Project object */;
+}
