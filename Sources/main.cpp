@@ -55,13 +55,26 @@ int main(int argc, const char * argv[])
         "-I/Frameworks/Clang/clang 3.4.2/include/c++/v1",
         "-I/Frameworks/Clang/clang 3.4.2/lib/clang/3.4.2/include",
         "-isysroot/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk",
-        "-iquote/Frameworks/Cinder/cinder_master/include/",
-        "-I/Frameworks/Cinder/cinder_master/boost/"
+        "-iquote/Frameworks/Cinder/cinder_master/include",
+        "-I/Frameworks/Cinder/cinder_master/boost",
+        "-w"
     } )
-    .inputDirectory( "/Frameworks/Cinder/cinder_master/include/cinder/" )
-    .inputFileList( {
-        "Vbo.h"
-    } )
+    
+    // !!! last char can't be a / !!!
+    .inputDirectory( "/Frameworks/Cinder/cinder_master/include/cinder" )
+    .outputDirectory( "/Frameworks/Autres/Clang-Parser/build/Output" )
+   /* .inputFileList( {
+        "/Frameworks/Cinder/cinder_master/include/cinder/Area.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/AxisAlignedBox.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Color.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Vbo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Fbo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/ImageIo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Matrix44.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/ObjLoader.h"
+    } )*/
     .excludeDirectoryList( {
         // directories
         "/Frameworks/Cinder/cinder_master/include/cinder/audio/cocoa",
@@ -118,6 +131,28 @@ int main(int argc, const char * argv[])
         "/Frameworks/Cinder/cinder_master/include/cinder/UrlImplWinInet.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/WinRTUtils.h"
     })
+    .license( "/*\n\
+Copyright (c) 2014, Simon Geilfus, All rights reserved.\n\
+\n\
+This code is intended for use with the Cinder C++ library: http://libcinder.org\n\
+\n\
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that\n\
+the following conditions are met:\n\
+\n\
+* Redistributions of source code must retain the above copyright notice, this list of conditions and\n\
+the following disclaimer.\n\
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and\n\
+the following disclaimer in the documentation and/or other materials provided with the distribution.\n\
+\n\
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED\n\
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A\n\
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR\n\
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED\n\
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n\
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\n\
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
+POSSIBILITY OF SUCH DAMAGE.\n\
+*/" )
     ;
     
     Parser parser( options );

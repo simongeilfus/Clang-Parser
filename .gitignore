@@ -1,0 +1,21 @@
+# Mac OS X cruft
+UserInterfaceState.xcuserstate
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.user
+project.xcworkspace
+*.xcuserdata/
+*.xccheckout
+.DS_Store
+
+build/
+
+# Windows cruft
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+Debug/
+Release/
+ipch/

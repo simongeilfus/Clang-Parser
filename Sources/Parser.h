@@ -21,6 +21,8 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 
 class Parser {
@@ -31,6 +33,7 @@ public:
         
         Options& outputDirectory( const std::string& path ){ mOutputDirectory = path; return *this; }
         Options& inputDirectory( const std::string& path ){ mInputDirectory = path; return *this; }
+        Options& license( const std::string& license ){ mLicense = license; return *this; }
         
         Options& inputFileList( const std::vector<std::string>& list ){ mInputFileList = list; return *this; }
         Options& excludeFileList( const std::vector<std::string>& list ){ mExcludeFileList = list; return *this; }
@@ -39,6 +42,7 @@ public:
         
         std::string getOutputDirectory(){ return mOutputDirectory; }
         std::string getInputDirectory(){ return mInputDirectory; }
+        std::string getLicense(){ return mLicense; }
         
         const std::vector<std::string>& getInputFileList(){ return mInputFileList; }
         const std::vector<std::string>& getExcludeFileList(){ return mExcludeFileList; }
@@ -47,6 +51,7 @@ public:
     protected:
         std::string                 mOutputDirectory;
         std::string                 mInputDirectory;
+        std::string                 mLicense;
         
         std::vector<std::string>    mInputFileList;
         std::vector<std::string>    mExcludeFileList;
@@ -58,12 +63,18 @@ public:
     Parser( Options options = Options() );
     
 protected:
+    struct OutputStreams {
+        /*std::stringstream   mDefs;
+        std::stringstream   mImpls;*/
+        std::ofstream   mDefs;
+        std::ofstream   mImpls;
+    };
     
     // visitor class
     class Visitor : public clang::RecursiveASTVisitor<Visitor> {
     public:
         //! constructor
-        Visitor( clang::ASTContext* context ) : mContext(context) {}
+        Visitor( clang::ASTContext* context, OutputStreams& streams ) : mContext(context), mStreams( streams ) {}
         
         //! visits exceptions
         bool VisitCXXThrowExpr(clang::CXXThrowExpr *declaration);
@@ -79,6 +90,8 @@ protected:
         bool VisitCXXRecordDecl(clang::CXXRecordDecl *declaration);
         //! visits functions
         bool VisitFunctionDecl(clang::FunctionDecl *declaration);
+        bool VisitClassTemplateDecl( clang::ClassTemplateDecl *declaration );
+        bool VisitTranslationUnitDecl( clang::TranslationUnitDecl* declaration );
         
         //! stops template instantiations visits
         bool shouldVisitTemplateInstantiations() const { return false; }
@@ -92,8 +105,11 @@ protected:
         //! returns whether the declaration is in the main file or not
         template<typename T>
         bool isInMainFile( T *declaration );
+        //! returns the full scope from a DeclContext
+        std::string getScope( clang::DeclContext* declarationContext );
         
         clang::ASTContext*                                  mContext;
+        OutputStreams&                                      mStreams;
         std::map<std::string,clang::NamespaceAliasDecl*>    mNamespaceAliases;
         clang::CXXRecordDecl*                               mExceptionDecl;
     };
@@ -102,30 +118,37 @@ protected:
     class Consumer : public clang::ASTConsumer {
     public:
         //! constructor
-        Consumer(clang::ASTContext* context) : mVisitor( context ) {}
+        Consumer( clang::ASTContext* context, OutputStreams& streams ) : mVisitor( context, streams ), mStreams( streams ) {}
         
         //! parses each top-level declarations
-        bool HandleTopLevelDecl(clang::DeclGroupRef group) override;
+        //bool HandleTopLevelDecl(clang::DeclGroupRef group) override;
+        
+        // this replaces "HandleTopLevelDecl"
+        // override this to call our ExampleVisitor on the entire source file
+        void HandleTranslationUnit( clang::ASTContext &context );
         
     private:
         clang::ASTContext*  mContext;
         Visitor             mVisitor;
+        OutputStreams&      mStreams;
     };
     
     // action class
     class FrontendAction : public clang::ASTFrontendAction {
     public:
         //! constructor
-        FrontendAction() {}
+        FrontendAction( OutputStreams& streams ) : mStreams( streams ) {}
         
         void EndSourceFileAction() override;
         
         //! returns our writter consumer
         clang::ASTConsumer *CreateASTConsumer( clang::CompilerInstance &compiler, clang::StringRef file ) override;
         
+    private:
+        OutputStreams& mStreams;
     };
     
-    Options mOptions;
+    Options         mOptions;
 };
 
 
