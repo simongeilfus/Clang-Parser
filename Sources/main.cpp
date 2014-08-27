@@ -62,19 +62,36 @@ int main(int argc, const char * argv[])
     
     // !!! last char can't be a / !!!
     .inputDirectory( "/Frameworks/Cinder/cinder_master/include/cinder" )
-    .outputDirectory( "/Frameworks/Autres/Clang-Parser/build/Output" )
-   /* .inputFileList( {
+    .outputDirectory( "/Users/simongeilfus/Desktop/RegistrationTest/src" )
+    .inputFileList( {
+        "/Frameworks/Cinder/cinder_master/include/cinder/Arcball.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/Area.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/AxisAlignedBox.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/Color.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Vbo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Camera.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Clipboard.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/ConvexHull.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Display.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Easing.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Filter.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Font.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/DisplayList.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/gl/Fbo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/gl.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/GlslProg.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Light.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Material.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Texture.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/TextureFont.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Fbo.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Vbo.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/ImageIo.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/Matrix44.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Json.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/ObjLoader.h"
-    } )*/
+        //"/Frameworks/Cinder/cinder_master/include/cinder/Color.h",
+        //"/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
+        //"/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",
+        //"/Frameworks/Cinder/cinder_master/include/cinder/Matrix44.h"
+    } )
     .excludeDirectoryList( {
         // directories
         "/Frameworks/Cinder/cinder_master/include/cinder/audio/cocoa",
@@ -153,6 +170,16 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABI
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
 POSSIBILITY OF SUCH DAMAGE.\n\
 */" )
+    .unsupportedTypes( {
+        "*",
+        "~",
+        "Ref",
+        "std::vector",
+        "unspecified_bool_type",
+        "std::pair",
+        "boost::container",
+        "NodeType"
+    })
     ;
     
     Parser parser( options );
