@@ -114,15 +114,15 @@ Parser::Parser( Options options )
         
         
         // Types
-        if( output.mRegisterTypes.tellp() || output.mEnums.tellp() ){
-            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Types" << endl;
-            headerFile << "\t" << "void register" << name.stem().string() << "Types( asIScriptEngine* engine );" << endl;
+        if( output.mDeclCalls.tellp() || output.mEnumsDecl.tellp() ){
+            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Forward Declarations" << endl;
+            headerFile << "\t" << "void register" << name.stem().string() << "Declarations( asIScriptEngine* engine );" << endl;
             
-            sourceFile << "\t" << "//! registers " << name.stem().string() << " Types" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Types( asIScriptEngine* engine )" << endl;
+            sourceFile << "\t" << "//! registers " << name.stem().string() << " Forward Declarations" << endl;
+            sourceFile << "\t" << "void register" << name.stem().string() << "Declarations( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
-            sourceFile << output.mRegisterTypes.str() << endl;
-            if( output.mEnums.tellp() ){
+            sourceFile << output.mDeclCalls.str() << endl;
+            if( output.mEnumsDecl.tellp() ){
                 headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Enums" << endl;
                 headerFile << "\t" << "void register" << name.stem().string() << "Enums( asIScriptEngine* engine );" << endl;
                 
@@ -133,13 +133,13 @@ Parser::Parser( Options options )
         }
         
         // Enums
-        if( output.mEnums.tellp() ){
+        if( output.mEnumsDecl.tellp() ){
             sourceFile << "\t" << "//! registers " << name.stem().string() << " Enums" << endl;
             sourceFile << "\t" << "void register" << name.stem().string() << "Enums( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
             sourceFile << "\t\t" << "int r;" << endl;
             sourceFile << endl;
-            sourceFile << output.mEnums.str() << endl;
+            sourceFile << output.mEnumsDecl.str() << endl;
             sourceFile << endl;
             sourceFile << "\t\t" << "// set back to empty default namespace " << endl;
             sourceFile << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
@@ -148,27 +148,27 @@ Parser::Parser( Options options )
         }
         
         // Implemntations
-        if( output.mRegisterImpls.tellp() ){
-            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Implementations" << endl;
-            headerFile << "\t" << "void register" << name.stem().string() << "Impls( asIScriptEngine* engine );" << endl;
+        if( output.mDefCalls.tellp() ){
+            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Definitions" << endl;
+            headerFile << "\t" << "void register" << name.stem().string() << "Definitions( asIScriptEngine* engine );" << endl;
             
-            sourceFile << "\t" << "//! registers " << name.stem().string() << " Implementations" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Impls( asIScriptEngine* engine )" << endl;
+            sourceFile << "\t" << "//! registers " << name.stem().string() << " Definitions" << endl;
+            sourceFile << "\t" << "void register" << name.stem().string() << "Definitions( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
-            sourceFile << output.mRegisterImpls.str() << endl;
-            if( output.mFunctions.tellp() ){
+            sourceFile << output.mDefCalls.str() << endl;
+            if( output.mFunctionDef.tellp() ){
                 sourceFile << "\t\t" << "register" << name.stem().string() << "Functions( engine );" << endl;
             }
             sourceFile << "\t" << "}" << endl;
             sourceFile << endl;
         }
         
-        if( output.mRegisterTypes.tellp() || output.mRegisterImpls.tellp() ){
+        if( output.mDeclCalls.tellp() || output.mDefCalls.tellp() ){
             headerFile << endl;
         }
         
         // Functions
-        if( output.mFunctions.tellp() ){
+        if( output.mFunctionDef.tellp() ){
             headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " functions" << endl;
             headerFile << "\t" << "void register" << name.stem().string() << "Functions( asIScriptEngine* engine );" << endl;
             
@@ -177,7 +177,7 @@ Parser::Parser( Options options )
             sourceFile << "\t" << "{" << endl;
             sourceFile << "\t\t" << "int r;" << endl;
             sourceFile << endl;
-            sourceFile << output.mFunctions.str() << endl;
+            sourceFile << output.mFunctionDef.str() << endl;
             
             // close the namespace
             if( !output.mCurrentFunctionScope.empty() ){
@@ -191,10 +191,15 @@ Parser::Parser( Options options )
         }
         
         // Classes
-        sourceFile << output.mClassImpls.str() << endl;
+        if( output.mClassDef.tellp() ) sourceFile << output.mClassDef.str() << endl;
+        if( output.mClassFieldDef.tellp() ) sourceFile << output.mClassFieldDef.str() << endl;
+        if( output.mClassMethodDef.tellp() ) sourceFile << output.mClassMethodDef.str() << endl;
         
         // Header definitions
-        headerFile << output.mDefinitions.str() << endl;
+        if( output.mClassDecl.tellp() ) headerFile << output.mClassDecl.str() << endl;
+        if( output.mClassFieldDecl.tellp() ) headerFile << output.mClassFieldDecl.str() << endl;
+        if( output.mClassMethodDecl.tellp() ) headerFile << output.mClassMethodDecl.str() << endl;
+        
         headerFile << endl;
         headerFile << "}" << endl;
         
@@ -227,21 +232,21 @@ bool Parser::Visitor::VisitEnumDecl(clang::EnumDecl *declaration)
         string fullScope = getFullScope( declaration, name );
         if( !fullScope.empty() && mOutput.mCurrentEnumScope != fullScope ){
             
-            mOutput.mEnums << "\t\t" << "// set the current namespace " << endl;
-            mOutput.mEnums << "\t\t" << "r = engine->SetDefaultNamespace(\"" + fullScope + "\"); assert( r >= 0 );" << endl;
-            mOutput.mEnums << endl;
+            mOutput.mEnumsDecl << "\t\t" << "// set the current namespace " << endl;
+            mOutput.mEnumsDecl << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( fullScope ) + " ); assert( r >= 0 );" << endl;
+            mOutput.mEnumsDecl << endl;
             
             mOutput.mCurrentEnumScope = fullScope;
         }
         
-        mOutput.mEnums << "\t\t" << "r = engine->RegisterEnum(\"" + name + "\"); assert( r >= 0 );" << endl;
+        mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnum( " + quote( name ) + " ); assert( r >= 0 );" << endl;
         
         for( EnumDecl::enumerator_iterator it = declaration->enumerator_begin(), endIt = declaration->enumerator_end(); it != endIt; ++it ){
             EnumConstantDecl* enumDecl = *it;
             
-            mOutput.mEnums << "\t\t" << "r = engine->RegisterEnumValue(\"" + name + "\", \"" + enumDecl->getNameAsString() + "\", " + ( fullScope.empty() ? "" : fullScope + "::" ) + ( name.empty() ? "" : name + "::" ) +  enumDecl->getNameAsString() + "); assert( r >= 0 );" << endl;
+            mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnumValue( " + quote( name ) + ", " + quote( enumDecl->getNameAsString() ) + ", " + ( fullScope.empty() ? "" : fullScope + "::" ) + ( name.empty() ? "" : name + "::" ) +  enumDecl->getNameAsString() + "); assert( r >= 0 );" << endl;
         }
-        mOutput.mEnums << endl;
+        mOutput.mEnumsDecl << endl;
         
     }
     return true;
@@ -288,203 +293,99 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
        //!declaration->isEmpty() &&
        //!declaration->isHidden() &&
        ( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
-       // cout << "\t" << "R" << declaration->getQualifiedNameAsString() << endl;
-      /*  if( declaration->isPOD() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isPOD" << endl;
-        }
-        if( declaration->isCLike() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isCLike" << endl;
-        }
-        if( declaration->isAbstract() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isAbstract" << endl;
-        }
-        if( declaration->isTemplateDecl() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isTemplateDecl" << endl;
-        }
-        if( declaration->isLocalClass() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isLocalClass" << endl;
-        }
-        if( declaration->isDynamicClass() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isDynamicClass" << endl;
-        }
-        if( declaration->isLocalClass() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isLocalClass" << endl;
-        }
-        if( declaration->isInterface() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isInterface" << endl;
-        }
-        if( declaration->isHidden() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isHidden" << endl;
-        }
-        if( declaration->isCanonicalDecl() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isCanonicalDecl" << endl;
-        }
-        if( declaration->getPreviousDecl() != nullptr ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " has PreviousDecl" << endl;
-        }
-        if( declaration->getMostRecentDecl() != nullptr ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " has MostRecentDecl" << endl;
-            cout << "\t\t" << declaration->getTypeForDecl()->getTypeClassName() << endl;
-        }
-        if (ClassTemplateDecl *Var = llvm::dyn_cast<ClassTemplateDecl>(declaration) ) {
-            cout << "\t" << declaration->getQualifiedNameAsString() << " can be casted to ClassTemplateDecl" << endl;
-        }
-        if( declaration->getTypeForDecl()->isInterfaceType() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isInterfaceType" << endl;
-        }
-        if( declaration->getTypeForDecl()->isTemplateTypeParmType() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isTemplateTypeParmType" << endl;
-        }
-        if( declaration->isFirstDecl() ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " isFirstDecl" << endl;
-        }
         
-        if( isa<InjectedClassNameType>( declaration->getTypeForDecl() ) ){
-            cout << "\t" << declaration->getQualifiedNameAsString() << " is a Template!" << endl;
-            ClassTemplateDecl *temp = llvm::dyn_cast<ClassTemplateDecl>( declaration->getCanonicalDecl() );
-            if( temp != nullptr ){
-                cout << "SDFSD" << endl;
-            }
-            
-        }*/
         
-        ClassTemplateDecl *temp2 = declaration->getDescribedClassTemplate();
-        if( temp2 != nullptr ){
-            cout << "\t" << "!Template: ";
-            return true;
-            cout << "\t\t" << declaration->getNameAsString() << "<";
-            TemplateParameterList* params = temp2->getTemplateParameters();
+        
+        // get class names
+        string className                = getDeclarationName( declaration );
+        string classQualifiedName       = getDeclarationQualifiedName( declaration );
+        string classShortQualifiedName  = replaceNamespacesByAliases( classQualifiedName );
+        string classQualifiedStyledName = styleScopedName( classQualifiedName );
+        string classScope               = getFullScope( declaration->getDeclContext(), "" );
+        string templateClassName        = className;
+        
+        bool isTemplate = false;
+        int numTemplateParameters = 0;
+        if( ClassTemplateDecl *classTemplateDecl = declaration->getDescribedClassTemplate() ){
+            TemplateParameterList* params = classTemplateDecl->getTemplateParameters();
             for( TemplateParameterList::iterator it = params->begin(), itEnd = params->end(); it != itEnd; ++it ){
                 cout << (*it)->getNameAsString() << ( it + 1 != itEnd ? ", " : "" );
+                numTemplateParameters++;
             }
-            cout << ">" << endl;
-        }
-        //conversion_iterator conversion_begin()
-        //param_iterator param_begin()
-        //init_iterator       init_begin()
-        
-        //const SourceManager& sm = mContext->getSourceManager();
-        /* cout << "!!! VisitCXXRecordDecl :    " << endl;
-         std::cout << declaration->getQualifiedNameAsString() << std::endl;*/
-        
-        clang::LangOptions langOpts;
-        langOpts.CPlusPlus = true;
-        
-        clang::PrintingPolicy printingPolicy(langOpts);
-        printingPolicy.SuppressTagKeyword = true;
-        printingPolicy.SuppressScope = true;
-        printingPolicy.Bool = true;
-        printingPolicy.AnonymousTagLocations = false;
-        
-        clang::PrintingPolicy printingScopedPolicy(langOpts);
-        printingScopedPolicy.SuppressTagKeyword = true;
-        printingScopedPolicy.Bool = true;
-        printingScopedPolicy.AnonymousTagLocations = false;
-        
-        clang::PrintingPolicy printingSuppressedPolicy(langOpts);
-        printingSuppressedPolicy.SuppressTagKeyword = true;
-        printingSuppressedPolicy.SuppressScope = true;
-        printingSuppressedPolicy.SuppressTag = true;
-        printingSuppressedPolicy.AnonymousTagLocations = false;/*
-        printingSuppressedPolicy.SuppressUnwrittenScope = true;
-        printingSuppressedPolicy.TerseOutput = true;
-        printingSuppressedPolicy.PolishForDeclaration = true;*/
-        printingSuppressedPolicy.Bool = true;
-        
-        
-        /*if( mExceptionDecl!=nullptr && declaration->isDerivedFrom(mExceptionDecl) ){
-            //cout << "Is derived from std::exception" << endl;
+            if( numTemplateParameters <= 1 ){
+                cout << "\t" << "!Template: ";
+                cout << "\t\t" << declaration->getNameAsString() << "<";
+                cout << ">" << " with " << numTemplateParameters << " parameters" << endl;
+                
+                if( templateClassName[templateClassName.length()-1] == 'T' ){
+                    templateClassName = templateClassName.substr( 0, templateClassName.length()-1 ) + "<T>";
+                }
+                
+                isTemplate = true;
+            }
+            else return true;
             return true;
-        }*/
-        
-        
-        
-        
-        if( declaration->getDeclContext()->isNamespace() ){
-            NamespaceDecl* ns = static_cast<NamespaceDecl*>( declaration->getDeclContext() );
-            //mOutput.mClassImpls << "context: " << ns->getNameAsString() << endl;
         }
-        
-        
-        // get names
-        string qualifiedName        = declaration->getQualifiedNameAsString( printingScopedPolicy );
-        string shortQualifiedName   = qualifiedName;
-        string qualifiedFuncName    = qualifiedName;
-        string name                 = declaration->getNameAsString();
-        
-        // check if there's namespace names to replace by aliases
-        for( auto alias : mNamespaceAliases ){
-            if( shortQualifiedName.find( alias.first ) != string::npos ){
-                boost::replace_all( shortQualifiedName, alias.first, alias.second->getNameAsString() );
-            }
-        }
-        
-        // make first char of each word uppercase
-        qualifiedFuncName[0] = std::toupper( qualifiedName[0] );
-        for( int i = 1; i < qualifiedFuncName.length(); i++ ){
-            if( qualifiedFuncName[i-1] == ':' && qualifiedFuncName[i] != ':' ){
-                qualifiedFuncName[i] = std::toupper( qualifiedName[i] );
-            }
-        }
-        boost::replace_all( qualifiedFuncName, "::", "" );
-        
-        
-        
-       /* mOutput.mClassImpls << "!!! name : " << name << endl;
-        mOutput.mClassImpls << "!!! qualifiedName : " << qualifiedName << endl;
-        mOutput.mClassImpls << "!!! shortQualifiedName : " << shortQualifiedName << endl;
-        mOutput.mClassImpls << "!!! qualifiedFuncName : " << qualifiedFuncName << endl;*/
-        
-        string scope = getFullScope( declaration->getDeclContext(), "" );
         
         if( !declaration->isEmpty() ){
             
-            mOutput.mRegisterTypes << "\t\t" << "register" << qualifiedFuncName << "Type( engine );" << endl;
-            mOutput.mDefinitions << "\t" << "//! registers " << qualifiedName << " class" << endl;
-            mOutput.mDefinitions << "\t" << "void register" << qualifiedFuncName << "Type( asIScriptEngine* engine );" << endl;
             
             // starting type function
-            mOutput.mClassImpls << "\t" << "//! registers " << qualifiedName << " class" << endl;
-            mOutput.mClassImpls << "\t" << "void register" << qualifiedFuncName << "Type( asIScriptEngine* engine )" << endl;
-            mOutput.mClassImpls << "\t" << "{" << endl;
-            mOutput.mClassImpls << "\t\t" << "int r;" << endl;
-            mOutput.mClassImpls << endl;
+            if( !isTemplate ){
+                mOutput.mClassDef << "\t" << "//! registers " << classQualifiedName << " class" << endl;
+                mOutput.mClassDef << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine )" << endl;
+            }
+            else {
+               /* mOutput.mClassImpls << "\t" << "//! registers " << classQualifiedName << " template" << endl;
+                mOutput.mClassImpls << "\t" << "template<typename T>" << endl;
+                mOutput.mClassImpls << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name )" << endl;*/
+            }
             
-            // extract scope
-            if( !scope.empty() ){
-                mOutput.mClassImpls << "\t\t" << "// set the current namespace " << endl;
-                mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"" + scope + "\"); assert( r >= 0 );" << endl;
-                mOutput.mClassImpls << endl;
+            mOutput.mClassDef << "\t" << "{" << endl;
+            mOutput.mClassDef << "\t\t" << "int r;" << endl;
+            mOutput.mClassDef << endl;
+            
+            // add scope
+            if( !classScope.empty() ){
+                mOutput.mClassDef << "\t\t" << "// set the current namespace " << endl;
+                mOutput.mClassDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                mOutput.mClassDef << endl;
             }
             
             // register the type
-            mOutput.mClassImpls << "\t\t" << "// register the object type " << endl;
-            mOutput.mClassImpls << "\t\t" << "r = engine->RegisterObjectType( \"" << name << "\", sizeof(" << declaration->getQualifiedNameAsString() << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;
+            mOutput.mClassDef << "\t\t" << "// register the object type " << endl;
+            
+            if( !isTemplate ){
+                mOutput.mDeclCalls << "\t\t" << "register" << classQualifiedStyledName << "Type( engine );" << endl;
+                
+                mOutput.mClassDecl << "\t" << "//! registers " << classQualifiedName << " class" << endl;
+                mOutput.mClassDecl << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine );" << endl;
+                
+                mOutput.mClassDef << "\t\t" << "r = engine->RegisterObjectType( " << quote( className ) << ", sizeof(" << declaration->getQualifiedNameAsString() << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;
+            }
+            else {
+                
+                /*mOutput.mDefinitions << "\t" << "//! registers " << classQualifiedName << " template" << endl;
+                mOutput.mDefinitions << "\t" << "template<typename T>" << endl;
+                mOutput.mDefinitions << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name );" << endl;
+                
+                cout << templateClassName << endl;
+                
+                mOutput.mClassImpls << "\t\t" << "r = engine->RegisterObjectType( name.c_str(), sizeof(" << classQualifiedName << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;*/
+            }
             
             // close the namespace
-            if( !scope.empty() ){
-                mOutput.mClassImpls << endl;
-                mOutput.mClassImpls << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+            if( !classScope.empty() ){
+                mOutput.mClassDef << endl;
+                mOutput.mClassDef << "\t\t" << "// set back to empty default namespace " << endl;
+                mOutput.mClassDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             // closing type function
-            mOutput.mClassImpls << "\t" << "}" << endl;
-            mOutput.mClassImpls << endl;
+            mOutput.mClassDef << "\t" << "}" << endl;
+            mOutput.mClassDef << endl;
         }
-                
-        /*for( CXXRecordDecl::base_class_iterator it = declaration->bases_begin(),
-         endIt = declaration->bases_end(); it != endIt; ++it ){
-         CXXBaseSpecifier* base = it;
-         
-         cout << "\t Base Class: " << base->getType().getAsString() << endl;
-         }
-         
-         for( CXXRecordDecl::base_class_iterator it = declaration->vbases_begin(),
-         endIt = declaration->vbases_end(); it != endIt; ++it ){
-         CXXBaseSpecifier* base = it;
-         cout << "\t Virtual Base Class: " << base->getType().getAsString() << endl;
-         }*/
+        
         
         bool hasPublicFields = false;
         bool hasPublicConstructors = false;
@@ -492,9 +393,10 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
         bool hasPublicMethods = false;
         bool isStaticNamespace = false;
         
+        // Fields
+        
         if( !declaration->field_empty() ){
-            for( CXXRecordDecl::field_iterator it = declaration->field_begin(),
-                endIt = declaration->field_end(); it != endIt; ++it ){
+            for( CXXRecordDecl::field_iterator it = declaration->field_begin(), endIt = declaration->field_end(); it != endIt; ++it ){
                 FieldDecl* field = *it;
                 
                 // skip private and implicit fields
@@ -503,69 +405,37 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
                         hasPublicFields = true;
                         
                         
-                        mOutput.mRegisterImpls << "\t\t" << "register" << qualifiedFuncName << "Fields( engine );" << endl;
-                        mOutput.mDefinitions << "\t" << "//! registers " << qualifiedName << " fields" << endl;
-                        mOutput.mDefinitions << "\t" << "void register" << qualifiedFuncName << "Fields( asIScriptEngine* engine );" << endl;
+                        mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Fields( engine );" << endl;
+                        
+                        mOutput.mClassFieldDecl << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
+                        mOutput.mClassFieldDecl << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine );" << endl;
                         
                         // starting fields function
-                        mOutput.mClassImpls << "\t" << "//! registers " << qualifiedName << " fields" << endl;
-                        mOutput.mClassImpls << "\t" << "void register" << qualifiedFuncName << "Fields( asIScriptEngine* engine )" << endl;
-                        mOutput.mClassImpls << "\t" << "{" << endl;
-                        mOutput.mClassImpls << "\t\t" << "int r;" << endl;
-                        mOutput.mClassImpls << endl;
+                        mOutput.mClassFieldDef << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
+                        mOutput.mClassFieldDef << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine )" << endl;
+                        mOutput.mClassFieldDef << "\t" << "{" << endl;
+                        mOutput.mClassFieldDef << "\t\t" << "int r;" << endl;
+                        mOutput.mClassFieldDef << endl;
                         
                         // set the namespace
-                        if( !scope.empty() ){
-                            mOutput.mClassImpls << "\t\t" << "// set the current namespace " << endl;
-                            mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"" + scope + "\"); assert( r >= 0 );" << endl;
-                            mOutput.mClassImpls << endl;
+                        if( !classScope.empty() ){
+                            mOutput.mClassFieldDef << "\t\t" << "// set the current namespace " << endl;
+                            mOutput.mClassFieldDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                            mOutput.mClassFieldDef << endl;
                         }
                     }
                     
-                    // get field name and type
-                    string fieldName = field->getNameAsString();
-                    string fieldType = field->getType().getAsString( printingScopedPolicy );
-                    
-                    // not sure how to remove the "class " in front of some types
-                    boost::replace_all( fieldType, "class ", "" );
-                    
-                    // get field qualified type
-                    string fieldQualifiedType = fieldType;
-                    
-                    // try to extract type scope/namespace
-                    string fullScope    = getFullScope( field->getType(), fieldQualifiedType );
-                    string classScope   = getClassScope( field->getType(), fieldType );
-                    boost::replace_all( fullScope, "::__1", "" );
-                    boost::replace_all( classScope, "::__1", "" );
-                    
-                    // add the scope if it's not there already
-                    if( !classScope.empty() && fieldType.find( classScope ) == string::npos ){
-                        if( fieldType.find( "const " ) != string::npos ){
-                            fieldType =  "const " + classScope + "::" + fieldType.substr( 6 );
-                        }
-                        else {
-                            fieldType =  classScope + "::" + fieldType;
-                        }
-                    }
-                    
-                    // add the scope if it's not there already
-                    if( !fullScope.empty() && fieldQualifiedType.find( fullScope ) == string::npos ){
-                        if( fieldQualifiedType.find( "const " ) != string::npos ){
-                            fieldQualifiedType =  "const " + fullScope + "::" + fieldQualifiedType.substr( 6 );
-                        }
-                        else {
-                            fieldQualifiedType =  fullScope + "::" + fieldQualifiedType;
-                        }
-                    }
-                    
-                    string fieldDecl = fieldType + " " + fieldName;
+                    // get field name, type and field qualified type
+                    string fieldName            = getDeclarationName( field );
+                    string fieldType            = getTypeName( field->getType() );
+                    string fieldDecl            = fieldType + " " + fieldName;
                     
                     // register the field
                     //mOutput.mClassImpls << "\t\t" << "// register " << name << " " << fieldDecl << endl;
                     if( !isSupported( fieldDecl ) ){
-                        mOutput.mClassImpls << "//";
+                        mOutput.mClassFieldDef << "//";
                     }
-                    mOutput.mClassImpls << "\t\t" << "r = engine->RegisterObjectProperty( \"" << name << "\", \"" << fieldDecl << "\", asOFFSET( " << qualifiedName <<  ", " << fieldName << " ) ); assert( r >= 0 );" << endl;
+                    mOutput.mClassFieldDef << "\t\t" << "r = engine->RegisterObjectProperty( " << quote( className ) << ", " << quote( fieldDecl ) << ", asOFFSET( " << classQualifiedName <<  ", " << fieldName << " ) ); assert( r >= 0 );" << endl;
                     //mOutput.mClassImpls << endl;
                 }
             }
@@ -575,109 +445,52 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
         if( hasPublicFields ) {
             
             // close the namespace
-            if( !scope.empty() ){
-                mOutput.mClassImpls << endl;
-                mOutput.mClassImpls << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+            if( !classScope.empty() ){
+                mOutput.mClassFieldDef << endl;
+                mOutput.mClassFieldDef << "\t\t" << "// set back to empty default namespace " << endl;
+                mOutput.mClassFieldDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             // closing type function
-            mOutput.mClassImpls << "\t" << "}" << endl;
-            mOutput.mClassImpls << endl;
+            mOutput.mClassFieldDef << "\t" << "}" << endl;
+            mOutput.mClassFieldDef << endl;
         }
         
-        std::vector<Decl*> constructors;
-        for( CXXRecordDecl::ctor_iterator it = declaration->ctor_begin(),
-            endIt = declaration->ctor_end(); it != endIt; ++it ){
-            CXXConstructorDecl* constructor = *it;
-            if( constructor->getAccess() == AS_public && !constructor->isImplicit() ){
-                if( !hasPublicConstructors ){
-                    hasPublicConstructors = true;
-                    //cout << "\t\t" << "Public Constructors: " << endl;
-                }
-                
-                std::string r = constructor->getResultType().getAsString( printingScopedPolicy );
-                std::string name = constructor->getNameAsString();
-                
-                int numParams = constructor->getNumParams();
-                std::string params;
-                for( int i = 0; i < numParams; i++ ){
-                    ParmVarDecl* p = constructor->getParamDecl( i );
-                    Expr* defaultArg = p->getDefaultArg();
-                    
-                    std::string defaultArgString;
-                    if( defaultArg ){
-                        defaultArgString = declToString( defaultArg );
-                    }
-                    
-                    params += p->getType().getAsString(printingPolicy) + " " + p->getNameAsString() + ( defaultArgString.empty() ? "" : " = " + defaultArgString ) + ( i < numParams - 1 ? ", " : "" );
-                }
-                //std::cout << "\t\t\t" << r << " " << name << "(" << ( numParams > 0 ? " " + params + " " : "" ) << ")" << std::endl;
-                
-                
-                constructors.push_back( static_cast<Decl*>( constructor ) );
-            }
-        }
-        //if( hasPublicConstructors ) cout << endl;
+        // Methods
         
-        if( declaration->getDestructor() != nullptr ){
-            CXXDestructorDecl* destructor = declaration->getDestructor();
-            if( destructor->getAccess() == AS_public && !destructor->isImplicit() ){
-                if( !hasPublicDestructor ){
-                    hasPublicDestructor = true;
-                    //cout << "\t\t" << "Public Destructor: " << endl;
-                }
-                //cout << "\t\t\t" << declToString( destructor ) << endl;
-                //cout << endl;
-            }
-        }
-        
-        for( CXXRecordDecl::method_iterator it = declaration->method_begin(),
-            endIt = declaration->method_end(); it != endIt; ++it ){
-            CXXMethodDecl* method = *it;
-            
-            bool isConstructor = find( constructors.begin(), constructors.end(), static_cast<Decl*>(method) ) != constructors.end();
-            
-            if ( llvm::isa<clang::CXXConstructorDecl>( method ) ) {
-                cout << "CXXConstructorDecl " << endl;
-            }
-            else if ( llvm::isa<clang::CXXDestructorDecl>( method ) ) {
-                cout << "CXXDestructorDecl " << endl;
-            }
+        for( CXXRecordDecl::method_iterator it = declaration->method_begin(), endIt = declaration->method_end(); it != endIt; ++it ){
+            CXXMethodDecl* method   = *it;
+            bool isConstructor      = llvm::isa<clang::CXXConstructorDecl>( method );
+            bool isDestructor       = llvm::isa<clang::CXXDestructorDecl>( method );
             
             // skip private and implicit methods
-            if( method->getAccess() == AS_public && !method->isImplicit() && !isConstructor ){
+            if( method->getAccess() == AS_public && !method->isImplicit() && !isConstructor && !isDestructor ){
                 if( !hasPublicMethods ){
                     hasPublicMethods = true;
                     
-                    mOutput.mRegisterImpls << "\t\t" << "register" << qualifiedFuncName << "Methods( engine );" << endl;
-                    mOutput.mDefinitions << "\t" << "//! registers " << qualifiedName << " methods" << endl;
-                    mOutput.mDefinitions << "\t" << "void register" << qualifiedFuncName << "Methods( asIScriptEngine* engine );" << endl;
+                    mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Methods( engine );" << endl;
+                    
+                    mOutput.mClassMethodDecl << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
+                    mOutput.mClassMethodDecl << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine );" << endl;
                     
                     // starting methods function
-                    mOutput.mClassImpls << "\t" << "//! registers " << qualifiedName << " methods" << endl;
-                    mOutput.mClassImpls << "\t" << "void register" << qualifiedFuncName << "Methods( asIScriptEngine* engine )" << endl;
-                    mOutput.mClassImpls << "\t" << "{" << endl;
-                    mOutput.mClassImpls << "\t\t" << "int r;" << endl;
-                    mOutput.mClassImpls << endl;
+                    mOutput.mClassMethodDef << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
+                    mOutput.mClassMethodDef << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine )" << endl;
+                    mOutput.mClassMethodDef << "\t" << "{" << endl;
+                    mOutput.mClassMethodDef << "\t\t" << "int r;" << endl;
+                    mOutput.mClassMethodDef << endl;
                     
                     // set the namespace
-                    if( !scope.empty() ){
-                        mOutput.mClassImpls << "\t\t" << "// set the current namespace " << endl;
-                        mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"" + scope + "\"); assert( r >= 0 );" << endl;
-                        mOutput.mClassImpls << endl;
+                    if( !classScope.empty() ){
+                        mOutput.mClassMethodDef << "\t\t" << "// set the current namespace " << endl;
+                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                        mOutput.mClassMethodDef << endl;
                     }
                 }
                 
-                
-                
                 // extract function params
-                string params               = getFunctionArgList( method );
-                string paramsTypes          = getFunctionArgTypeList( method );
-                
-                // finalize params strings
-                params                      = "(" + ( method->getNumParams() > 0 ? " " + params + " " : "" ) + ")";
-                paramsTypes                 = "(" + paramsTypes + ")";
+                string params               = "(" + ( method->getNumParams() > 0 ? " " + getFunctionArgList( method ) + " " : "" ) + ")" + ( method->isConst() ? " const" : "" );
+                string paramsTypes          = "(" + getFunctionArgTypeList( method ) + ")" + ( method->isConst() ? " const" : "" );
                 
                 // get return qualified type and function name
                 string returnQualifiedType  = getFunctionQualifiedReturnType( method );
@@ -687,33 +500,33 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
                 // if method is not static declare it as ObjectMethod
                 if( !method->isStatic() ){
                     if( isStaticNamespace ){
-                        mOutput.mClassImpls << endl;
-                        mOutput.mClassImpls << "\t\t" << "// set back the current namespace " << endl;
-                        mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"" + scope + "\"); assert( r >= 0 );" << endl;
-                        mOutput.mClassImpls << endl;
+                        mOutput.mClassMethodDef << endl;
+                        mOutput.mClassMethodDef << "\t\t" << "// set back the current namespace " << endl;
+                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                        mOutput.mClassMethodDef << endl;
                         
                         isStaticNamespace = false;
                     }
                     
                     if( !isSupported( returnQualifiedType + methodName + params + paramsTypes + returnQualifiedType ) ){
-                        mOutput.mClassImpls << "//";
+                        mOutput.mClassMethodDef << "//";
                     }
-                    mOutput.mClassImpls << "\t\t" << "r = engine->RegisterObjectMethod( \"" << name << "\", \"" << returnQualifiedType << " " << methodName << params << "\", asMETHODPR( " << qualifiedName <<  ", " << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_THISCALL ); assert( r >= 0 );" << endl;
+                    mOutput.mClassMethodDef << "\t\t" << "r = engine->RegisterObjectMethod( " << quote( className ) << ", " << quote( returnQualifiedType + " " + methodName + params ) << ", asMETHODPR( " << classQualifiedName <<  ", " << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_THISCALL ); assert( r >= 0 );" << endl;
                 }
                 // else declare it as GlobalFunction with a namespace
                 else {
                     if( !isStaticNamespace ){
-                        mOutput.mClassImpls << endl;
-                        mOutput.mClassImpls << "\t\t" << "// set static namespace " << endl;
-                        mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"" + ( !scope.empty() ? scope + "::" : "" ) + name + "\"); assert( r >= 0 );" << endl;
-                        mOutput.mClassImpls << endl;
+                        mOutput.mClassMethodDef << endl;
+                        mOutput.mClassMethodDef << "\t\t" << "// set static namespace " << endl;
+                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( ( !classScope.empty() ? classScope + "::" : "" ) + className ) + "); assert( r >= 0 );" << endl;
+                        mOutput.mClassMethodDef << endl;
                         
                         isStaticNamespace = true;
                     }
                     if( !isSupported( returnQualifiedType + methodName + params + paramsTypes + returnQualifiedType ) ){
-                        mOutput.mClassImpls << "//";
+                        mOutput.mClassMethodDef << "//";
                     }
-                    mOutput.mClassImpls << "\t\t" << "r = engine->RegisterGlobalFunction( \"" << returnQualifiedType << " " << methodName << params << "\", asFUNCTIONPR( " << qualifiedName <<  "::" << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+                    mOutput.mClassMethodDef << "\t\t" << "r = engine->RegisterGlobalFunction( " << quote( returnQualifiedType + " " + methodName + params ) << ", asFUNCTIONPR( " << classQualifiedName <<  "::" << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
                 }
             }
         }
@@ -722,16 +535,16 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
         if( hasPublicMethods ) {
             
             // close the namespace
-            if( !scope.empty() || isStaticNamespace ){
-                mOutput.mClassImpls << endl;
-                mOutput.mClassImpls << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassImpls << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+            if( !classScope.empty() || isStaticNamespace ){
+                mOutput.mClassMethodDef << endl;
+                mOutput.mClassMethodDef << "\t\t" << "// set back to empty default namespace " << endl;
+                mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             
             // closing methods function
-            mOutput.mClassImpls << "\t" << "}" << endl;
-            mOutput.mClassImpls << endl;
+            mOutput.mClassMethodDef << "\t" << "}" << endl;
+            mOutput.mClassMethodDef << endl;
         }
     }
     return true;
@@ -742,12 +555,8 @@ bool Parser::Visitor::VisitFunctionDecl( clang::FunctionDecl *function )
     if( isInMainFile( function ) && function->getAccess() == AS_none ){
         
         // extract function params
-        string params               = getFunctionArgList( function );
-        string paramsTypes          = getFunctionArgTypeList( function );
-        
-        // finalize params strings
-        params                      = "(" + ( function->getNumParams() > 0 ? " " + params + " " : "" ) + ")";
-        paramsTypes                 = "(" + paramsTypes + ")";
+        string params               = "(" + ( function->getNumParams() > 0 ? " " + getFunctionArgList( function ) + " " : "" ) + ")";
+        string paramsTypes          = "(" + getFunctionArgTypeList( function ) + ")";
         
         // get return qualified type and function name
         string returnQualifiedType  = getFunctionQualifiedReturnType( function );
@@ -756,27 +565,25 @@ bool Parser::Visitor::VisitFunctionDecl( clang::FunctionDecl *function )
         
         // change scope
         if( !scope.empty() && scope != mOutput.mCurrentFunctionScope ){
-            mOutput.mFunctions << "\t\t" << "// set the current namespace " << endl;
-            mOutput.mFunctions << "\t\t" << "r = engine->SetDefaultNamespace(\"" + scope + "\"); assert( r >= 0 );" << endl;
-            mOutput.mFunctions << endl;
+            mOutput.mFunctionDef << "\t\t" << "// set the current namespace " << endl;
+            mOutput.mFunctionDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( scope ) + " ); assert( r >= 0 );" << endl;
+            mOutput.mFunctionDef << endl;
             
             mOutput.mCurrentFunctionScope = scope;
         }
         
         if( !isSupported( returnQualifiedType + params + paramsTypes ) ){
-            mOutput.mFunctions << "//";
+            mOutput.mFunctionDef << "//";
         }
         
-        mOutput.mFunctions << "\t\t" << "r = engine->RegisterGlobalFunction( \"" << returnQualifiedType << " " << functionName << params << "\", asFUNCTIONPR( " << ( scope.empty() ? "" : scope + "::"  ) << functionName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+        mOutput.mFunctionDef << "\t\t" << "r = engine->RegisterGlobalFunction( " << quote( returnQualifiedType + " " + functionName + params ) << ", asFUNCTIONPR( " << ( scope.empty() ? "" : scope + "::"  ) << functionName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
         
     }
     return true;
 }
 
 
-
-
-
+//! returns the full scope from a DeclContext
 std::string Parser::Visitor::getFullScope( DeclContext* declarationContext, const std::string& currentScope ){
     string scope = "";
     DeclContext* context = declarationContext;
@@ -811,8 +618,7 @@ std::string Parser::Visitor::getFullScope( DeclContext* declarationContext, cons
     
     return scope;
 }
-
-
+//! returns the full scope from a QualType
 std::string Parser::Visitor::getFullScope( const clang::QualType& type, const std::string& currentScope ){
     string scope = "";
     if( DeclContext* context = getTypeDeclContext( type ) ){
@@ -820,7 +626,7 @@ std::string Parser::Visitor::getFullScope( const clang::QualType& type, const st
     }
     return scope;
 }
-
+//! returns the class scope from a DeclContext
 std::string Parser::Visitor::getClassScope( DeclContext* declarationContext, const std::string& currentScope ){
     string scope = "";
     DeclContext* context = declarationContext;
@@ -843,7 +649,7 @@ std::string Parser::Visitor::getClassScope( DeclContext* declarationContext, con
     
     return scope;
 }
-
+//! returns the class scope from a QualType
 std::string Parser::Visitor::getClassScope( const clang::QualType& type, const std::string& currentScope ){
     string scope = "";
     if( DeclContext* context = getTypeDeclContext( type ) ){
@@ -998,6 +804,42 @@ std::string Parser::Visitor::getFunctionQualifiedReturnType( clang::FunctionDecl
     return getTypeQualifiedName( function->getResultType() );
 }
 
+//! replaces namespaces by aliases and returns the corrected string
+std::string Parser::Visitor::replaceNamespacesByAliases( const std::string &declaration )
+{
+    string shortName = declaration;
+    
+    // check if there's namespace names to replace by aliases
+    for( auto alias : mNamespaceAliases ){
+        if( shortName.find( alias.first ) != string::npos ){
+            boost::replace_all( shortName, alias.first, alias.second->getNameAsString() );
+        }
+    }
+    
+    return shortName;
+}
+
+//! makes each word first char upper case, removes the :: and returns the styled string
+std::string Parser::Visitor::styleScopedName( const std::string &declaration )
+{
+    string styledName = declaration;
+    
+    // make first char of each word uppercase
+    styledName[0] = std::toupper( styledName[0] );
+    for( int i = 1; i < styledName.length(); i++ ){
+        if( styledName[i-1] == ':' && styledName[i] != ':' ){
+            styledName[i] = std::toupper( styledName[i] );
+        }
+    }
+    boost::replace_all( styledName, "::", "" );
+    
+    return styledName;
+}
+//! returns quoted string
+std::string Parser::Visitor::quote( const std::string &declaration )
+{
+    return "\"" + declaration + "\"";
+}
 
 clang::DeclContext* Parser::Visitor::getTypeDeclContext( const clang::QualType& type )
 {
@@ -1023,6 +865,7 @@ clang::DeclContext* Parser::Visitor::getTypeDeclContext( const clang::QualType& 
     
     return context;
 }
+
 
 bool Parser::Visitor::isSupported( const std::string& expr )
 {

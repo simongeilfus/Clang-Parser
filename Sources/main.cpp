@@ -87,7 +87,7 @@ int main(int argc, const char * argv[])
         "/Frameworks/Cinder/cinder_master/include/cinder/ImageIo.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/Json.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/ObjLoader.h"
-        //"/Frameworks/Cinder/cinder_master/include/cinder/Color.h",
+        //"/Frameworks/Cinder/cinder_master/include/cinder/Color.h"
         //"/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
         //"/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",
         //"/Frameworks/Cinder/cinder_master/include/cinder/Matrix44.h"
@@ -178,7 +178,8 @@ POSSIBILITY OF SUCH DAMAGE.\n\
         "unspecified_bool_type",
         "std::pair",
         "boost::container",
-        "NodeType"
+        "NodeType",
+        "std::ostream"
     })
     ;
     

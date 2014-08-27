@@ -73,15 +73,22 @@ public:
 protected:
     struct Output {
         Output() : mIsInNamespace(false) {}
-        /*std::stringstream   mDefs;
-        std::stringstream   mImpls;*/
-        std::stringstream   mClassDefs;
-        std::stringstream   mClassImpls;
-        std::stringstream   mFunctions;
-        std::stringstream   mRegisterTypes;
-        std::stringstream   mRegisterImpls;
-        std::stringstream   mDefinitions;
-        std::stringstream   mEnums;
+        
+        std::stringstream   mClassDecl;
+        std::stringstream   mClassDef;
+        std::stringstream   mClassFieldDecl;
+        std::stringstream   mClassFieldDef;
+        std::stringstream   mClassMethodDecl;
+        std::stringstream   mClassMethodDef;
+        
+        std::stringstream   mTemplatesDecl;
+        std::stringstream   mTemplatesDef;
+        
+        std::stringstream   mEnumsDecl;
+        std::stringstream   mFunctionDef;
+        
+        std::stringstream   mDeclCalls;
+        std::stringstream   mDefCalls;
         
         bool    mIsInNamespace;
         
@@ -125,11 +132,11 @@ protected:
         
         //! returns the full scope from a DeclContext
         std::string getFullScope( clang::DeclContext* declarationContext, const std::string& currentScope );
-        //! returns the full scope from a DeclContext
+        //! returns the full scope from a QualType
         std::string getFullScope( const clang::QualType& type, const std::string& currentScope );
-        //! returns the full scope from a DeclContext
+        //! returns the class scope from a DeclContext
         std::string getClassScope( clang::DeclContext* declarationContext, const std::string& currentScope );
-        //! returns the full scope from a DeclContext
+        //! returns the class scope from a QualType
         std::string getClassScope( const clang::QualType& type, const std::string& currentScope );
         
         //! returns the name of a Declaration
@@ -150,6 +157,14 @@ protected:
         std::string getFunctionReturnType( clang::FunctionDecl *function );
         //! returns the qualified/scoped return type name of a function
         std::string getFunctionQualifiedReturnType( clang::FunctionDecl *function );
+        
+        //! replaces namespaces by aliases and returns the corrected string
+        std::string replaceNamespacesByAliases( const std::string &declaration );
+        //! makes each word first char upper case, removes the :: and returns the styled string
+        std::string styleScopedName( const std::string &declaration );
+        //! returns quoted string
+        std::string quote( const std::string &declaration );
+        
         
         clang::DeclContext* getTypeDeclContext( const clang::QualType& type );
         
