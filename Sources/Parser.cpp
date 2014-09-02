@@ -15,6 +15,13 @@ using namespace std;
 
 namespace fs = boost::filesystem;
 
+
+FunctionRef Object::createFunction( const std::string &name ) { return FunctionRef( new Function( name ) ); }
+EnumRef Object::createEnum( const std::string &name ) { return EnumRef( new Enum( name ) ); }
+ClassRef Object::createClass( const std::string &name ) { return ClassRef( new Class( name ) ); }
+FieldRef Object::createField( const std::string &name ) { return FieldRef( new Field( name ) ); }
+MethodRef Object::createMethod( const std::string &name ) { return MethodRef( new Method( name ) ); }
+
 Parser::Parser( Options options )
 : mOptions( options )
 {
@@ -367,7 +374,7 @@ bool Parser::Visitor::VisitTypedefDecl(clang::TypedefDecl *declaration)
                 
                 if( !templateQualifiedName.empty() && !templateArgs.empty() && numArgs == 1 ){
                     
-                    if( find( mOutput.mClasses.begin(), mOutput.mClasses.end(), templateMangleName ) != mOutput.mClasses.end() ){
+                    if( find( mOutput.mClassesNames.begin(), mOutput.mClassesNames.end(), templateMangleName ) != mOutput.mClassesNames.end() ){
                         mOutput.mDeclCalls << "\t\t" << "register" << styleScopedName( templateQualifiedName ) <<  "Type<" << templateArgs << ">( engine, " << quote( declaration->getNameAsString() ) << " );" << endl;
                         
                         string templateSpecialization = "template void register" + styleScopedName( templateQualifiedName ) +  "Type<" + templateArgs + ">( asIScriptEngine*, const std::string & );";
@@ -561,7 +568,7 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
             (*defStream) << "\t" << "}" << endl;
             (*defStream) << endl;
             
-            mOutput.mClasses.push_back( mangleName );
+            mOutput.mClassesNames.push_back( mangleName );
         }
         
         

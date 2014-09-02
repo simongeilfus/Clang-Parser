@@ -30,6 +30,161 @@
 #include <sstream>
 
 
+typedef std::shared_ptr<class Object>   ObjectRef;
+typedef std::shared_ptr<class Function> FunctionRef;
+typedef std::shared_ptr<class Enum>     EnumRef;
+typedef std::shared_ptr<class Class>    ClassRef;
+typedef std::shared_ptr<class Field>    FieldRef;
+typedef std::shared_ptr<class Method>   MethodRef;
+
+class Object {
+public:
+    static FunctionRef  createFunction( const std::string &name );
+    static EnumRef      createEnum( const std::string &name );
+    static ClassRef     createClass( const std::string &name );
+    static FieldRef     createField( const std::string &name );
+    static MethodRef    createMethod( const std::string &name );
+    
+    //! creates and returns an empty named object
+    Object( const std::string &name ) : mName( name ) {}
+    
+    //! sets the name and returns the object
+    Object& name( const std::string &name ) { mName = name; return *this; }
+    //! sets the unique name and returns the object
+    Object& uniqueName( const std::string &name ) { mUniqueName = name; return *this; }
+    //! sets whether the object is constant and returns the object
+    Object& constant( bool isConstant = true ) { mIsConst = isConstant; return *this; }
+    //! sets whether the object is a template
+    Object& templated( bool isTemplate = true ) { mIsTemplate = isTemplate; return *this; }
+    
+    //! returns the object name
+    std::string getName() const { return mName; }
+    //! returns the object unique name
+    std::string getUniqueName() const { return mUniqueName; }
+    //! returns the object kind
+    std::string getKind() const { return "Object"; }
+    
+    //! returns whether the object is static
+    bool isStatic() const { return false; }
+    //! returns whether the object is const
+    bool isConst() const { return mIsConst; }
+    //! returns whether the object is a template
+    bool isTemplate() const { return mIsTemplate; }
+    
+protected:
+    std::string mName;
+    std::string mUniqueName;
+    bool        mIsConst;
+    bool        mIsTemplate;
+};
+
+class Function : public Object {
+public:
+    //! creates and return an empty named function
+    Function( const std::string &name ) : Object( name ) {}
+    
+    //! sets the function return type
+    Object& returnType( const std::string &returnType ) { mReturnType = returnType; return *this; }
+    
+    //! adds a function parameter
+    void addParameter( const std::string &type, const std::string &name ){ mParams.push_back( type + " " + name ); mParamsTypes.push_back( type ); }
+    
+    //! returns the function return type
+    std::string getReturnType() const { return mReturnType; }
+    //! returns the function parameters
+    const std::vector<std::string>& getParams() const { return mParams; }
+    //! returns the function parameters as a string separated by 'separator'
+    std::string getParamsNames( const std::string &separator = ", " ) { std::string names; for( auto n : mParams ) names += n + separator; return names.substr( 0, names.length() - separator.length() ); }
+    //! returns the function parameters types
+    const std::vector<std::string>& getParamsTypes() const { return mParamsTypes; }
+    //! returns the function parameters types as a string separated by 'separator'
+    std::string getParamsTypesNames( const std::string &separator = ", " ) { std::string names; for( auto n : mParamsTypes ) names += n + separator; return names.substr( 0, names.length() - separator.length() ); }
+    //! returns the object kind
+    std::string getKind() const { return "Function"; }
+    
+    
+protected:
+    std::string                 mReturnType;
+    std::vector<std::string>    mParams;
+    std::vector<std::string>    mParamsTypes;
+};
+
+class Enum : public Object {
+public:
+    //! creates and returns an empty named enum
+    Enum( const std::string &name ) : Object( name ) {}
+    
+    //! adds an enum value
+    void addValue( std::string name ) { mValues.push_back( name ); }
+    
+    //! returns the values as strings
+    const std::vector<std::string>& getValues() const { return mValues; }
+    //! returns the object kind
+    std::string getKind() const { return "Enum"; }
+    
+protected:
+    std::vector<std::string> mValues;
+};
+
+
+class Field : public Object {
+public:
+    //! creates and returns an empty named field
+    Field( const std::string &name ) : Object( name ), mIsStatic( false ) {}
+    
+    //! sets whether the field is static
+    Field& statical( bool isStatic = true ) { mIsStatic = isStatic; return *this; }
+    
+    //! returns whether the field is static
+    bool isStatic() const { return mIsStatic; }
+    //! returns the object kind
+    std::string getKind() const { return "Field"; }
+    
+protected:
+    bool mIsStatic;
+};
+
+class Method : public Function {
+public:
+    //! creates and returns an empty named method
+    Method( const std::string &name ) : Function( name ), mIsStatic( false ) {}
+    
+    //! sets whether the method is static
+    Method& statical( bool isStatic = true ) { mIsStatic = isStatic; return *this; }
+    
+    //! returns whether the method is static
+    bool isStatic() const { return mIsStatic; }
+    //! returns the object kind
+    std::string getKind() const { return "Method"; }
+    
+protected:
+    bool mIsStatic;
+};
+
+class Class : public Object {
+public:
+    //! creates and returns an empty named class
+    Class( const std::string &name ) : Object( name ) {}
+    
+    //! adds a field to the class
+    void addField( const Field &field ) { mFields.emplace_back( field ); }
+    //! adds a method to the class
+    void addMethod( const Method &method ) { mMethods.emplace_back( method ); }
+    
+    //! returns the class fields
+    const std::vector<Field>& getFields() const { return mFields; }
+    //! returns the class methods
+    const std::vector<Method>& getMethods() const { return mMethods; }
+    //! returns the object kind
+    std::string getKind() const { return "Class"; }
+    
+protected:
+    std::vector<Field>  mFields;
+    std::vector<Method> mMethods;
+};
+
+
+
 class Parser {
 public:
     
@@ -103,36 +258,18 @@ protected:
         std::string mCurrentEnumScope;
         std::string mCurrentFunctionScope;
         
-        std::vector<std::string> mClasses;
+        std::vector<std::string> mClassesNames;
         std::vector<std::string> mClassesWithFields;
         std::vector<std::string> mClassesWithMethods;
+        
+        std::vector<ClassRef>       mClasses;
+        std::vector<EnumRef>        mEnums;
+        std::vector<FunctionRef>    mFunctions;
     };
     
-    class Function {
-    public:
-        
-        
-    };
-    class Enum {
-    public:
-        
-        
-    };
-    class Class {
-    public:
-        
-        class Field {
-        public:
-            bool mIsStatic;
-            
-        };
-        class Method {
-        public:
-            bool mIsStatic;
-        };
-        
-        bool mIsTemplate;
-    };
+    
+    
+    
     
     // visitor class
     class Visitor : public clang::RecursiveASTVisitor<Visitor> {
