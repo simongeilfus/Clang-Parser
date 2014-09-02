@@ -45,6 +45,7 @@ public:
         Options& excludeDirectoryList( const std::vector<std::string>& list ){ mExcludeDirectoryList = list; return *this; }
         Options& compilerFlags( const std::vector<std::string>& flags ){ mCompilerFlags = flags; return *this; }
         Options& unsupportedTypes( const std::vector<std::string>& types ){ mUnsupportedTypes = types; return *this; }
+        Options& supportedOperators( const std::map<std::string,std::string>& operators ){ mSupportedOperators = operators; return *this; }
         
         std::string getOutputDirectory() const { return mOutputDirectory; }
         std::string getInputDirectory() const { return mInputDirectory; }
@@ -55,6 +56,7 @@ public:
         const std::vector<std::string>& getExcludeDirectoryList() const { return mExcludeDirectoryList; }
         const std::vector<std::string>& getCompilerFlags() const { return mCompilerFlags; }
         const std::vector<std::string>& getUnsupportedTypes() const { return mUnsupportedTypes; }
+        const std::map<std::string,std::string>& getSupportedOperators() const { return mSupportedOperators; }
         
     protected:
         std::string                 mOutputDirectory;
@@ -66,6 +68,8 @@ public:
         std::vector<std::string>    mExcludeDirectoryList;
         std::vector<std::string>    mCompilerFlags;
         std::vector<std::string>    mUnsupportedTypes;
+        
+        std::map<std::string,std::string> mSupportedOperators;
     };
     
     Parser( Options options = Options() );
@@ -76,6 +80,7 @@ protected:
         
         std::stringstream   mClassDecl;
         std::stringstream   mClassDef;
+        std::stringstream   mClassExtras;
         std::stringstream   mClassFieldDecl;
         std::stringstream   mClassFieldDef;
         std::stringstream   mClassMethodDecl;
@@ -83,8 +88,11 @@ protected:
         
         std::stringstream   mTemplatesDecl;
         std::stringstream   mTemplatesDef;
+        std::stringstream   mTemplatesSpec;
+        std::stringstream   mTemplateDeclCalls;
         
         std::stringstream   mEnumsDecl;
+        std::stringstream   mEnumsExtras;
         std::stringstream   mFunctionDef;
         
         std::stringstream   mDeclCalls;
@@ -94,6 +102,36 @@ protected:
         
         std::string mCurrentEnumScope;
         std::string mCurrentFunctionScope;
+        
+        std::vector<std::string> mClasses;
+        std::vector<std::string> mClassesWithFields;
+        std::vector<std::string> mClassesWithMethods;
+    };
+    
+    class Function {
+    public:
+        
+        
+    };
+    class Enum {
+    public:
+        
+        
+    };
+    class Class {
+    public:
+        
+        class Field {
+        public:
+            bool mIsStatic;
+            
+        };
+        class Method {
+        public:
+            bool mIsStatic;
+        };
+        
+        bool mIsTemplate;
     };
     
     // visitor class
@@ -131,16 +169,18 @@ protected:
         bool isInMainFile( T *declaration );
         
         //! returns the full scope from a DeclContext
-        std::string getFullScope( clang::DeclContext* declarationContext, const std::string& currentScope );
+        std::string getFullScope( clang::DeclContext* declarationContext, const std::string& currentScope = "" );
         //! returns the full scope from a QualType
-        std::string getFullScope( const clang::QualType& type, const std::string& currentScope );
+        std::string getFullScope( const clang::QualType& type, const std::string& currentScope = "" );
         //! returns the class scope from a DeclContext
-        std::string getClassScope( clang::DeclContext* declarationContext, const std::string& currentScope );
+        std::string getClassScope( clang::DeclContext* declarationContext, const std::string& currentScope = "" );
         //! returns the class scope from a QualType
-        std::string getClassScope( const clang::QualType& type, const std::string& currentScope );
+        std::string getClassScope( const clang::QualType& type, const std::string& currentScope = "" );
         
         //! returns the name of a Declaration
         std::string getDeclarationName( clang::NamedDecl* declaration );
+        //! returns the name of a Declaration
+        std::string getDeclarationName( const clang::NamedDecl* declaration );
         //! returns the qualified/scoped name of a Declaration
         std::string getDeclarationQualifiedName( clang::NamedDecl* declaration );
         //! returns the name of a QualType
@@ -157,6 +197,8 @@ protected:
         std::string getFunctionReturnType( clang::FunctionDecl *function );
         //! returns the qualified/scoped return type name of a function
         std::string getFunctionQualifiedReturnType( clang::FunctionDecl *function );
+        //! returns the unique name of a declaration
+        std::string getMangleName( clang::NamedDecl *declaration );
         
         //! replaces namespaces by aliases and returns the corrected string
         std::string replaceNamespacesByAliases( const std::string &declaration );
@@ -170,6 +212,8 @@ protected:
         
         //! returns wether a string contains unsupported types
         bool isSupported( const std::string& expr );
+        
+        std::vector<std::string> visitedRecords;
         
         clang::ASTContext*                                  mContext;
         Output&                                             mOutput;

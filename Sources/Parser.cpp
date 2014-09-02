@@ -48,6 +48,10 @@ Parser::Parser( Options options )
         }
     }
     
+    stringstream globalDeclCalls;
+    stringstream globalDefCalls;
+    stringstream globalIncludes;
+    
     // run clang tool on each header
     for( int i = 0; i < inputs.size(); i++ ){
         fs::path path = inputs[i];
@@ -68,7 +72,7 @@ Parser::Parser( Options options )
             fs::create_directory( mOptions.getOutputDirectory() + "/" + currentDirName );
         }
         
-        cout << "Parsing " << ( currentDirName.empty() ? "/" : currentDirName + "/" ) + name.string() << endl;
+       // cout << "Parsing " << ( currentDirName.empty() ? "/" : currentDirName + "/" ) + name.string() << endl;
         
         Output output;
         
@@ -95,6 +99,7 @@ Parser::Parser( Options options )
         
         // Source Header
         sourceFile << "#include \"" << name.string() << "\"" << endl;
+        globalIncludes << "#include \"" << name.string() << "\"" << endl;
         sourceFile << endl;
         sourceFile << "// Avoid having to inform include path if header is already include before" << endl;
         sourceFile << "#ifndef ANGELSCRIPT_H" << endl;
@@ -116,26 +121,54 @@ Parser::Parser( Options options )
         // Types
         if( output.mDeclCalls.tellp() || output.mEnumsDecl.tellp() ){
             headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Forward Declarations" << endl;
-            headerFile << "\t" << "void register" << name.stem().string() << "Declarations( asIScriptEngine* engine );" << endl;
+            headerFile << "\t" << "void registerCinder" << name.stem().string() << "Declarations( asIScriptEngine* engine );" << endl;
             
             sourceFile << "\t" << "//! registers " << name.stem().string() << " Forward Declarations" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Declarations( asIScriptEngine* engine )" << endl;
+            sourceFile << "\t" << "void registerCinder" << name.stem().string() << "Declarations( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
             sourceFile << output.mDeclCalls.str() << endl;
             if( output.mEnumsDecl.tellp() ){
-                headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Enums" << endl;
-                headerFile << "\t" << "void register" << name.stem().string() << "Enums( asIScriptEngine* engine );" << endl;
-                
-                sourceFile << "\t\t" << "register" << name.stem().string() << "Enums( engine );" << endl;
+                sourceFile << "\t\t" << "registerCinder" << name.stem().string() << "Enums( engine );" << endl;
             }
             sourceFile << "\t" << "}" << endl;
             sourceFile << endl;
+            
+            globalDeclCalls << "\t" << "as::registerCinder" << name.stem().string() << "Declarations( engine );" << endl;
         }
+        
+        // Implemntations
+        if( output.mDefCalls.tellp() ){
+            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Definitions" << endl;
+            headerFile << "\t" << "void registerCinder" << name.stem().string() << "Definitions( asIScriptEngine* engine );" << endl;
+            
+            sourceFile << "\t" << "//! registers " << name.stem().string() << " Definitions" << endl;
+            sourceFile << "\t" << "void registerCinder" << name.stem().string() << "Definitions( asIScriptEngine* engine )" << endl;
+            sourceFile << "\t" << "{" << endl;
+            sourceFile << output.mDefCalls.str() << endl;
+            if( output.mFunctionDef.tellp() ){
+                sourceFile << "\t\t" << "registerCinder" << name.stem().string() << "Functions( engine );" << endl;
+            }
+            sourceFile << "\t" << "}" << endl;
+            sourceFile << endl;
+            
+            globalDefCalls << "\t" << "as::registerCinder" << name.stem().string() << "Definitions( engine );" << endl;
+        }
+        
+        if( output.mDeclCalls.tellp() || output.mDefCalls.tellp() ){
+            headerFile << endl;
+        }
+        
         
         // Enums
         if( output.mEnumsDecl.tellp() ){
+            
+            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Enums" << endl;
+            headerFile << "\t" << "void registerCinder" << name.stem().string() << "Enums( asIScriptEngine* engine );" << endl;
+            
+            
             sourceFile << "\t" << "//! registers " << name.stem().string() << " Enums" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Enums( asIScriptEngine* engine )" << endl;
+            if( output.mEnumsExtras.tellp() ) sourceFile << endl << output.mEnumsExtras.str() << endl;
+            sourceFile << "\t" << "void registerCinder" << name.stem().string() << "Enums( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
             sourceFile << "\t\t" << "int r;" << endl;
             sourceFile << endl;
@@ -147,33 +180,13 @@ Parser::Parser( Options options )
             sourceFile << endl;
         }
         
-        // Implemntations
-        if( output.mDefCalls.tellp() ){
-            headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " Definitions" << endl;
-            headerFile << "\t" << "void register" << name.stem().string() << "Definitions( asIScriptEngine* engine );" << endl;
-            
-            sourceFile << "\t" << "//! registers " << name.stem().string() << " Definitions" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Definitions( asIScriptEngine* engine )" << endl;
-            sourceFile << "\t" << "{" << endl;
-            sourceFile << output.mDefCalls.str() << endl;
-            if( output.mFunctionDef.tellp() ){
-                sourceFile << "\t\t" << "register" << name.stem().string() << "Functions( engine );" << endl;
-            }
-            sourceFile << "\t" << "}" << endl;
-            sourceFile << endl;
-        }
-        
-        if( output.mDeclCalls.tellp() || output.mDefCalls.tellp() ){
-            headerFile << endl;
-        }
-        
         // Functions
         if( output.mFunctionDef.tellp() ){
             headerFile << "\t" << "//! registers " << "cinder" << "/" << currentDirName << ( currentDirName.empty() ? "" : "/" ) << name.string() << " functions" << endl;
-            headerFile << "\t" << "void register" << name.stem().string() << "Functions( asIScriptEngine* engine );" << endl;
+            headerFile << "\t" << "void registerCinder" << name.stem().string() << "Functions( asIScriptEngine* engine );" << endl;
             
             sourceFile << "\t" << "//! registers " << name.stem().string() << " functions" << endl;
-            sourceFile << "\t" << "void register" << name.stem().string() << "Functions( asIScriptEngine* engine )" << endl;
+            sourceFile << "\t" << "void registerCinder" << name.stem().string() << "Functions( asIScriptEngine* engine )" << endl;
             sourceFile << "\t" << "{" << endl;
             sourceFile << "\t\t" << "int r;" << endl;
             sourceFile << endl;
@@ -190,15 +203,19 @@ Parser::Parser( Options options )
             sourceFile << endl;
         }
         
-        // Classes
-        if( output.mClassDef.tellp() ) sourceFile << output.mClassDef.str() << endl;
-        if( output.mClassFieldDef.tellp() ) sourceFile << output.mClassFieldDef.str() << endl;
-        if( output.mClassMethodDef.tellp() ) sourceFile << output.mClassMethodDef.str() << endl;
-        
-        // Header definitions
+        // Header declaration
         if( output.mClassDecl.tellp() ) headerFile << output.mClassDecl.str() << endl;
         if( output.mClassFieldDecl.tellp() ) headerFile << output.mClassFieldDecl.str() << endl;
         if( output.mClassMethodDecl.tellp() ) headerFile << output.mClassMethodDecl.str() << endl;
+        if( output.mTemplatesDecl.tellp() ) headerFile << output.mTemplatesDecl.str() << endl;
+        
+        // Source Definitions
+        if( output.mClassExtras.tellp() ) sourceFile << output.mClassExtras.str() << endl;
+        if( output.mClassDef.tellp() ) sourceFile << output.mClassDef.str() << endl;
+        if( output.mClassFieldDef.tellp() ) sourceFile << output.mClassFieldDef.str() << endl;
+        if( output.mClassMethodDef.tellp() ) sourceFile << output.mClassMethodDef.str() << endl;
+        if( output.mTemplatesDef.tellp() ) sourceFile << output.mTemplatesDef.str() << endl;
+        if( output.mTemplatesSpec.tellp() ) sourceFile << output.mTemplatesSpec.str() << endl;
         
         headerFile << endl;
         headerFile << "}" << endl;
@@ -209,6 +226,8 @@ Parser::Parser( Options options )
         
         //cout << endl << endl << endl << output.mDefs.str() << endl << endl << endl;
     }
+    
+    cout << globalIncludes.str() << endl << endl << globalDeclCalls.str() << endl << endl << globalDefCalls.str() << endl;
 }
 
 //! visits exceptions
@@ -217,7 +236,7 @@ bool Parser::Visitor::VisitCXXThrowExpr(clang::CXXThrowExpr *declaration)
     if( isInMainFile( declaration ) ){
     //   ( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
         
-       // cout << "\tExc:" << declToString( declaration ) << " " << endl;
+       cout << "\tExc:" << declToString( declaration ) << " " << endl;
         
     }
     return true;
@@ -229,6 +248,12 @@ bool Parser::Visitor::VisitEnumDecl(clang::EnumDecl *declaration)
        ( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
         
         string name      = declaration->getNameAsString();
+        if( name.empty() ){
+            if( TypedefNameDecl* typedefNamedDecl = declaration->getTypedefNameForAnonDecl() ){
+                 name = typedefNamedDecl->getNameAsString();
+            }
+        }
+        
         string fullScope = getFullScope( declaration, name );
         if( !fullScope.empty() && mOutput.mCurrentEnumScope != fullScope ){
             
@@ -239,12 +264,21 @@ bool Parser::Visitor::VisitEnumDecl(clang::EnumDecl *declaration)
             mOutput.mCurrentEnumScope = fullScope;
         }
         
-        mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnum( " + quote( name ) + " ); assert( r >= 0 );" << endl;
+        if( !name.empty() ){
+            mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnum( " + quote( name ) + " ); assert( r >= 0 );" << endl;
+        }
         
         for( EnumDecl::enumerator_iterator it = declaration->enumerator_begin(), endIt = declaration->enumerator_end(); it != endIt; ++it ){
             EnumConstantDecl* enumDecl = *it;
             
-            mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnumValue( " + quote( name ) + ", " + quote( enumDecl->getNameAsString() ) + ", " + ( fullScope.empty() ? "" : fullScope + "::" ) + ( name.empty() ? "" : name + "::" ) +  enumDecl->getNameAsString() + "); assert( r >= 0 );" << endl;
+            if( !name.empty() ){
+                mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterEnumValue( " + quote( name ) + ", " + quote( enumDecl->getNameAsString() ) + ", " + ( fullScope.empty() ? "" : fullScope + "::" ) + ( name.empty() ? "" : name + "::" ) +  enumDecl->getNameAsString() + "); assert( r >= 0 );" << endl;
+            }
+            else {
+                string constName = "AS_CONST_" + enumDecl->getNameAsString();
+                mOutput.mEnumsExtras << "\t" << "static int " << constName << " = " << ( fullScope.empty() ? "" : fullScope + "::" ) + enumDecl->getNameAsString() << ";"  << endl;
+                mOutput.mEnumsDecl << "\t\t" << "r = engine->RegisterGlobalProperty( " << quote( "const int " + enumDecl->getNameAsString() ) << ", &" << constName << "); assert( r >= 0 );" << endl;
+            }
         }
         mOutput.mEnumsDecl << endl;
         
@@ -268,13 +302,122 @@ bool Parser::Visitor::VisitNamespaceDecl(clang::NamespaceDecl *declaration)
     }
     return true;
 }
+
+// TODO Move somewhere else? As an option?
+static map<string, string> typeSuffixes = {
+    { "float", "f" },
+    { "double", "d" },
+    { "int", "i" },
+    { "uint8_t", "i" }
+};
+
+
 //! visits typedefs
 bool Parser::Visitor::VisitTypedefDecl(clang::TypedefDecl *declaration)
 {
-   // std::cout << "\tTypedef: " << declaration->getTypeSourceInfo()->getType().getAsString() << " : " << declaration->getNameAsString() << std::endl;
     
-    if( isInMainFile( declaration ) &&
-       ( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
+    if( isInMainFile( declaration ) ){ //&&
+       //( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
+        
+        string scope = getFullScope( declaration->getDeclContext() );
+        
+        QualType type = declaration->getTypeSourceInfo()->getType();
+        if( const Type *typePtr = type.getTypePtr() ){
+            if( const TemplateSpecializationType *templateType = typePtr->getAs<TemplateSpecializationType>() ){
+                // cout << "\t Found a typedef of ";
+                
+                string templateQualifiedName;
+                string templateMangleName;
+                if( TemplateDecl *templateDecl = templateType->getTemplateName().getAsTemplateDecl() ){
+                    templateQualifiedName   = getDeclarationQualifiedName( templateDecl );
+                    templateMangleName      = getMangleName( templateDecl );
+                }
+                /*if( CXXRecordDecl *recordDecl = templateType->getAsCXXRecordDecl() ){
+                    
+                    string recordName = styleScopedName( getDeclarationQualifiedName( recordDecl ) );
+                    cout << getDeclarationName( declaration ) << " | " << recordName << " : " << declaration->getNameAsString() << endl;
+                    //cout << visitedRecords.size() << " " << boolalpha << ( find( visitedRecords.begin(), visitedRecords.end(), getMangleName( declaration ) ) != visitedRecords.end() ) << endl;
+                    
+                    cout << "Looking for " << getMangleName( declaration ) << " in ";
+                    for( auto mangle : visitedRecords ){
+                        cout << mangle << ", ";
+                    }
+                    cout << endl;
+                    
+                    string registerTypeString = "void register" + recordName +  "Type( asIScriptEngine* engine, const std::string &name )";
+                   // cout << "LookingFor: " << registerTypeString << endl << endl;
+                   // cout << "In:         " << mOutput.mClassDecl.str() << endl << endl;
+                   // cout << mOutput.mClassDecl.tellp() << endl;
+                    if( mOutput.mClassDecl.str().find( registerTypeString ) != string::npos ){
+                        cout << "SDFSDFSDFSD" << endl;
+                    }
+                    //mOutput.mDeclCalls << "\t\t" << "register" << classQualifiedStyledName << "Type( engine );" << endl;
+                    
+                }*/
+                
+                string templateArgs;
+                int numArgs = templateType->getNumArgs();
+                for( int i = 0; i < numArgs; i++ ){
+                    const TemplateArgument &arg = templateType->getArg( i );
+                    if( arg.getKind() == TemplateArgument::ArgKind::Type ){
+                        QualType argType            = arg.getAsType();
+                        templateArgs += getTypeName( argType ) + ( i + 1 < numArgs ? ", " : "" );
+                    }
+                }
+                
+                if( !templateQualifiedName.empty() && !templateArgs.empty() && numArgs == 1 ){
+                    
+                    if( find( mOutput.mClasses.begin(), mOutput.mClasses.end(), templateMangleName ) != mOutput.mClasses.end() ){
+                        mOutput.mDeclCalls << "\t\t" << "register" << styleScopedName( templateQualifiedName ) <<  "Type<" << templateArgs << ">( engine, " << quote( declaration->getNameAsString() ) << " );" << endl;
+                        
+                        string templateSpecialization = "template void register" + styleScopedName( templateQualifiedName ) +  "Type<" + templateArgs + ">( asIScriptEngine*, const std::string & );";
+                        if( mOutput.mTemplatesSpec.str().find( templateSpecialization ) == string::npos ){
+                            
+                            mOutput.mTemplatesSpec << endl << "\t" << "// " << templateQualifiedName << " template specializations so we can keep our implementation in the cpp file" << endl;
+                           // mOutput.mTemplatesSpec << "\t" << "template class " << styleScopedName( templateQualifiedName ) << "Factory<" << templateArgs <<">;" << endl;
+                            //mOutput.mTemplatesSpec << "\t" << "template<> std::map<" << templateQualifiedName << "<" << templateArgs << ">*, uint32_t> " << styleScopedName( templateQualifiedName ) << "Factory<" << templateArgs <<">::sRefs;" << endl;
+
+                            //mOutput.mTemplatesSpec << "\t" << "class " << styleScopedName( templateQualifiedName ) << "Factory<" << templateArgs << "> ;" << endl;
+                            //mOutput.mTemplatesSpec << "\t" << "public:" << endl;
+                            //mOutput.mTemplatesSpec << "\t\t" << "std::map<" << templateQualifiedName << "<" << templateArgs << ">" << "*, uint32_t> sRefs;" << endl;
+                            //mOutput.mTemplatesSpec << "\t" << "};" << endl;
+                            
+                            //mOutput.mTemplatesSpec << "\t" << "template<typename T> std::map<" << templateQualifiedName << "<T>*, uint32_t> " << styleScopedName( templateQualifiedName ) << "Factory<T>::sRefs;" << endl;
+                            //mOutput.mTemplatesSpec << endl;
+                            mOutput.mTemplatesSpec << "\t" << templateSpecialization << endl;
+                        }
+
+                    }
+                    if( find( mOutput.mClassesWithFields.begin(), mOutput.mClassesWithFields.end(), templateMangleName ) != mOutput.mClassesWithFields.end() ){
+                        mOutput.mDefCalls << "\t\t" << "register" << styleScopedName( templateQualifiedName ) <<  "Fields<" << templateArgs << ">( engine, " << quote( declaration->getNameAsString() ) << ", " << quote( templateArgs ) << " );" << endl;
+                        
+                        string templateSpecialization = "template void register" + styleScopedName( templateQualifiedName ) +  "Fields<" + templateArgs + ">";
+                        if( mOutput.mTemplatesSpec.str().find( templateSpecialization ) == string::npos ){
+                            mOutput.mTemplatesSpec << "\t" << templateSpecialization << "( asIScriptEngine*, const std::string &, const std::string & );" << endl;
+                        }
+                    }
+                    if( find( mOutput.mClassesWithMethods.begin(), mOutput.mClassesWithMethods.end(), templateMangleName ) != mOutput.mClassesWithMethods.end() ){
+                        mOutput.mDefCalls << "\t\t" << "register" << styleScopedName( templateQualifiedName ) <<  "Methods<" << templateArgs << ">( engine, " << quote( declaration->getNameAsString() ) << ", " << quote( templateArgs ) << ", " << quote( typeSuffixes[ templateArgs ] ) << " );" << endl;
+                        
+                        string templateSpecialization = "template void register" + styleScopedName( templateQualifiedName ) +  "Methods<" + templateArgs + ">";
+                        if( mOutput.mTemplatesSpec.str().find( templateSpecialization ) == string::npos ){
+                            mOutput.mTemplatesSpec << "\t" << templateSpecialization <<  "( asIScriptEngine*, const std::string &, const std::string &, const std::string & );" << endl;
+                        }
+                    }
+                }
+                
+            }
+            // else std::cout << "\tFound unknown typedef: " << declToString( declaration ) << std::endl;
+            //else std::cout << "\tFound unknown typedef: " << scope << " / " << declaration->getNameAsString() << std::endl;
+            //else cout << "\t\t That's something else" << endl;
+        }
+        
+        /*if( const Type *type = declaration->getTypeForDecl() ){
+            cout << "Found type" << endl;
+            if( CXXRecordDecl *decl = type->getAsCXXRecordDecl() ){
+                cout << "Found decl " << getDeclarationName( decl ) << endl;
+            }
+        }*/
         
     }
     return true;
@@ -289,101 +432,136 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
     
     if( isInMainFile( declaration ) &&
        declaration->isCompleteDefinition() &&
-       //!declaration->isAnonymousStructOrUnion() &&
+       !declaration->isAnonymousStructOrUnion() &&
        //!declaration->isEmpty() &&
        //!declaration->isHidden() &&
        ( declaration->getAccess() == AS_public || declaration->getAccess() == AS_none ) ){
         
-        
-        
         // get class names
-        string className                = getDeclarationName( declaration );
-        string classQualifiedName       = getDeclarationQualifiedName( declaration );
-        string classShortQualifiedName  = replaceNamespacesByAliases( classQualifiedName );
-        string classQualifiedStyledName = styleScopedName( classQualifiedName );
-        string classScope               = getFullScope( declaration->getDeclContext(), "" );
-        string templateClassName        = className;
+        string className                    = getDeclarationName( declaration );
+        string classQualifiedName           = replaceNamespacesByAliases( getDeclarationQualifiedName( declaration ) );
+        string classQualifiedStyledName     = styleScopedName( getDeclarationQualifiedName( declaration ) );
+        string classScope                   = getFullScope( declaration->getDeclContext() );
+        string templateClassName            = className;
+        string templateClassQualifiedName   = classQualifiedName;
+        string mangleName                   = getMangleName( declaration );
+        
         
         bool isTemplate = false;
         int numTemplateParameters = 0;
+        vector<string> templateParameterNames;
         if( ClassTemplateDecl *classTemplateDecl = declaration->getDescribedClassTemplate() ){
             TemplateParameterList* params = classTemplateDecl->getTemplateParameters();
+            templateClassQualifiedName  += "<";
+            templateClassName           += "<";
+            
             for( TemplateParameterList::iterator it = params->begin(), itEnd = params->end(); it != itEnd; ++it ){
-                cout << (*it)->getNameAsString() << ( it + 1 != itEnd ? ", " : "" );
+                string templateParamName = (*it)->getNameAsString();
+                templateParameterNames.push_back( templateParamName );
+                templateClassQualifiedName  += templateParamName + ( it + 1 != itEnd ? ", " : "" );
+                templateClassName           += templateParamName + ( it + 1 != itEnd ? ", " : "" );
                 numTemplateParameters++;
             }
+            templateClassQualifiedName  += ">";
+            templateClassName           += ">";
+            
             if( numTemplateParameters <= 1 ){
-                cout << "\t" << "!Template: ";
-                cout << "\t\t" << declaration->getNameAsString() << "<";
-                cout << ">" << " with " << numTemplateParameters << " parameters" << endl;
                 
-                if( templateClassName[templateClassName.length()-1] == 'T' ){
-                    templateClassName = templateClassName.substr( 0, templateClassName.length()-1 ) + "<T>";
-                }
+                /*if( templateClassQualifiedName[templateClassQualifiedName.length()-1] == 'T' ){
+                    templateClassQualifiedName = templateClassQualifiedName.substr( 0, templateClassQualifiedName.length()-1 ) + "<T>";
+                }*/
                 
                 isTemplate = true;
             }
             else return true;
-            return true;
         }
         
+        stringstream *declStream;
+        stringstream *defStream;
+        
+        // Usually singletons and classes with only static members are defined as empty
+        // so we don't need to bind the actual type to use the static members.
         if( !declaration->isEmpty() ){
             
+            declStream      = &mOutput.mClassDecl;
+            defStream       = &mOutput.mClassDef;
+            
+            if( isTemplate ){
+                declStream  = &mOutput.mTemplatesDecl;
+                defStream   = &mOutput.mTemplatesDef;
+            }
+            
+            
+            // create object factory
+            string qualifiedName = classQualifiedName;
+            mOutput.mClassExtras << "\t" << "//! " << qualifiedName << " RefCounting and Object Factories" << endl;
+            if( isTemplate ){
+                qualifiedName = templateClassQualifiedName;
+                mOutput.mClassExtras << "\t" << "template<typename T>" << endl;
+            }
+            mOutput.mClassExtras << "\t" << "class " << classQualifiedStyledName << "Factory {" << endl;
+            mOutput.mClassExtras << "\t" << "public:" << endl;
             
             // starting type function
             if( !isTemplate ){
-                mOutput.mClassDef << "\t" << "//! registers " << classQualifiedName << " class" << endl;
-                mOutput.mClassDef << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine )" << endl;
+                (*defStream) << "\t" << "//! registers " << classQualifiedName << " class" << endl;
+                (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine )" << endl;
             }
             else {
-               /* mOutput.mClassImpls << "\t" << "//! registers " << classQualifiedName << " template" << endl;
-                mOutput.mClassImpls << "\t" << "template<typename T>" << endl;
-                mOutput.mClassImpls << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name )" << endl;*/
+                (*defStream) << "\t" << "//! registers " << classQualifiedName << " template" << endl;
+                (*defStream) << "\t" << "template<typename T>" << endl;
+                (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name )" << endl;
             }
             
-            mOutput.mClassDef << "\t" << "{" << endl;
-            mOutput.mClassDef << "\t\t" << "int r;" << endl;
-            mOutput.mClassDef << endl;
+            (*defStream) << "\t" << "{" << endl;
+            (*defStream) << "\t\t" << "int r;" << endl;
+            (*defStream) << endl;
             
             // add scope
             if( !classScope.empty() ){
-                mOutput.mClassDef << "\t\t" << "// set the current namespace " << endl;
-                mOutput.mClassDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
-                mOutput.mClassDef << endl;
+                (*defStream) << "\t\t" << "// set the current namespace " << endl;
+                (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                (*defStream) << endl;
             }
             
             // register the type
-            mOutput.mClassDef << "\t\t" << "// register the object type " << endl;
+            (*defStream) << "\t\t" << "// register the object type " << endl;
             
             if( !isTemplate ){
                 mOutput.mDeclCalls << "\t\t" << "register" << classQualifiedStyledName << "Type( engine );" << endl;
                 
-                mOutput.mClassDecl << "\t" << "//! registers " << classQualifiedName << " class" << endl;
-                mOutput.mClassDecl << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine );" << endl;
+                (*declStream) << "\t" << "//! registers " << classQualifiedName << " class" << endl;
+                (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine );" << endl;
                 
-                mOutput.mClassDef << "\t\t" << "r = engine->RegisterObjectType( " << quote( className ) << ", sizeof(" << declaration->getQualifiedNameAsString() << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;
+                //(*defStream) << "\t\t" << "r = engine->RegisterObjectType( " << quote( className ) << ", sizeof(" << declaration->getQualifiedNameAsString() << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;
+                
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectType( " << quote( className ) << ", 0, asOBJ_REF ); assert( r >= 0 );" << endl;
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( " << quote( className ) << ", asBEHAVE_ADDREF, " << quote( "void f()" ) << ", asFUNCTION( " << classQualifiedStyledName << "Factory::addRef ), asCALL_CDECL_OBJLAST ); assert( r >= 0 );" << endl;
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( " << quote( className ) << ", asBEHAVE_RELEASE, " << quote( "void f()" ) << ", asFUNCTION( " << classQualifiedStyledName << "Factory::release ), asCALL_CDECL_OBJLAST ); assert( r >= 0 );" << endl;
             }
             else {
+                (*declStream) << "\t" << "//! registers " << classQualifiedName << " template" << endl;
+                (*declStream) << "\t" << "template<typename T>" << endl;
+                (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name );" << endl;
                 
-                /*mOutput.mDefinitions << "\t" << "//! registers " << classQualifiedName << " template" << endl;
-                mOutput.mDefinitions << "\t" << "template<typename T>" << endl;
-                mOutput.mDefinitions << "\t" << "void register" << classQualifiedStyledName << "Type( asIScriptEngine* engine, const std::string &name );" << endl;
-                
-                cout << templateClassName << endl;
-                
-                mOutput.mClassImpls << "\t\t" << "r = engine->RegisterObjectType( name.c_str(), sizeof(" << classQualifiedName << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;*/
+                //(*defStream) << "\t\t" << "r = engine->RegisterObjectType( name.c_str(), sizeof(" << templateClassQualifiedName << "), asOBJ_VALUE | asOBJ_APP_CLASS_CDAK ); assert( r >= 0 );" << endl;
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectType( name.c_str(), 0, asOBJ_REF ); assert( r >= 0 );" << endl;
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( name.c_str(), asBEHAVE_ADDREF, " << quote( "void f()" ) << ", asFUNCTION( " << classQualifiedStyledName << "Factory<T>::addRef ), asCALL_CDECL_OBJLAST ); assert( r >= 0 );" << endl;
+                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( name.c_str(), asBEHAVE_RELEASE, " << quote( "void f()" ) << ", asFUNCTION( " << classQualifiedStyledName << "Factory<T>::release ), asCALL_CDECL_OBJLAST ); assert( r >= 0 );" << endl;
             }
             
             // close the namespace
             if( !classScope.empty() ){
-                mOutput.mClassDef << endl;
-                mOutput.mClassDef << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+                (*defStream) << endl;
+                (*defStream) << "\t\t" << "// set back to empty default namespace " << endl;
+                (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             // closing type function
-            mOutput.mClassDef << "\t" << "}" << endl;
-            mOutput.mClassDef << endl;
+            (*defStream) << "\t" << "}" << endl;
+            (*defStream) << endl;
+            
+            mOutput.mClasses.push_back( mangleName );
         }
         
         
@@ -401,27 +579,44 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
                 
                 // skip private and implicit fields
                 if( field->getAccess() == AS_public && !field->isImplicit() ){
+                    
+                    declStream      = &mOutput.mClassFieldDecl;
+                    defStream       = &mOutput.mClassFieldDef;
+                    
+                    if( isTemplate ){
+                        declStream  = &mOutput.mTemplatesDecl;
+                        defStream   = &mOutput.mTemplatesDef;
+                    }
+                    
                     if( !hasPublicFields ){
                         hasPublicFields = true;
                         
+                        if( !isTemplate ){
+                            mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Fields( engine );" << endl;
+                            
+                            (*declStream) << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
+                            (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine );" << endl;
+                            (*defStream) << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
+                            (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine )" << endl;
+                        }
+                        else {
+                            (*declStream) << "\t" << "//! registers " << classQualifiedName << " template fields" << endl;
+                            (*declStream) << "\t" << "template<typename T>" << endl;
+                            (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine, const std::string &name, const std::string &type );" << endl;
+                            (*defStream) << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
+                            (*defStream) << "\t" << "template<typename T>" << endl;
+                            (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine, const std::string &name, const std::string &type )" << endl;
+                        }
                         
-                        mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Fields( engine );" << endl;
-                        
-                        mOutput.mClassFieldDecl << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
-                        mOutput.mClassFieldDecl << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine );" << endl;
-                        
-                        // starting fields function
-                        mOutput.mClassFieldDef << "\t" << "//! registers " << classQualifiedName << " fields" << endl;
-                        mOutput.mClassFieldDef << "\t" << "void register" << classQualifiedStyledName << "Fields( asIScriptEngine* engine )" << endl;
-                        mOutput.mClassFieldDef << "\t" << "{" << endl;
-                        mOutput.mClassFieldDef << "\t\t" << "int r;" << endl;
-                        mOutput.mClassFieldDef << endl;
+                        (*defStream) << "\t" << "{" << endl;
+                        (*defStream) << "\t\t" << "int r;" << endl;
+                        (*defStream) << endl;
                         
                         // set the namespace
                         if( !classScope.empty() ){
-                            mOutput.mClassFieldDef << "\t\t" << "// set the current namespace " << endl;
-                            mOutput.mClassFieldDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
-                            mOutput.mClassFieldDef << endl;
+                            (*defStream) << "\t\t" << "// set the current namespace " << endl;
+                            (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                            (*defStream) << endl;
                         }
                     }
                     
@@ -433,9 +628,15 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
                     // register the field
                     //mOutput.mClassImpls << "\t\t" << "// register " << name << " " << fieldDecl << endl;
                     if( !isSupported( fieldDecl ) ){
-                        mOutput.mClassFieldDef << "//";
+                        (*defStream) << "//";
                     }
-                    mOutput.mClassFieldDef << "\t\t" << "r = engine->RegisterObjectProperty( " << quote( className ) << ", " << quote( fieldDecl ) << ", asOFFSET( " << classQualifiedName <<  ", " << fieldName << " ) ); assert( r >= 0 );" << endl;
+                    
+                    if( !isTemplate ){
+                        (*defStream) << "\t\t" << "r = engine->RegisterObjectProperty( " << quote( className ) << ", " << quote( fieldDecl ) << ", asOFFSET( " << classQualifiedName <<  ", " << fieldName << " ) ); assert( r >= 0 );" << endl;
+                    }
+                    else {
+                        (*defStream) << "\t\t" << "r = engine->RegisterObjectProperty( name.c_str(), ( type + " << quote( " " + fieldName ) << " ).c_str(), asOFFSET( " << templateClassQualifiedName <<  ", " << fieldName << " ) ); assert( r >= 0 );" << endl;
+                    }
                     //mOutput.mClassImpls << endl;
                 }
             }
@@ -446,45 +647,65 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
             
             // close the namespace
             if( !classScope.empty() ){
-                mOutput.mClassFieldDef << endl;
-                mOutput.mClassFieldDef << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassFieldDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+                (*defStream) << endl;
+                (*defStream) << "\t\t" << "// set back to empty default namespace " << endl;
+                (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             // closing type function
-            mOutput.mClassFieldDef << "\t" << "}" << endl;
-            mOutput.mClassFieldDef << endl;
+            (*defStream) << "\t" << "}" << endl;
+            (*defStream) << endl;
+            
+            mOutput.mClassesWithFields.push_back( mangleName );
         }
         
         // Methods
-        
         for( CXXRecordDecl::method_iterator it = declaration->method_begin(), endIt = declaration->method_end(); it != endIt; ++it ){
             CXXMethodDecl* method   = *it;
             bool isConstructor      = llvm::isa<clang::CXXConstructorDecl>( method );
             bool isDestructor       = llvm::isa<clang::CXXDestructorDecl>( method );
             
             // skip private and implicit methods
-            if( method->getAccess() == AS_public && !method->isImplicit() && !isConstructor && !isDestructor ){
+            if( method->getAccess() == AS_public && !method->isImplicit() ) {//&& !isConstructor && !isDestructor ){
+                
+                declStream      = &mOutput.mClassMethodDecl;
+                defStream       = &mOutput.mClassMethodDef;
+                
+                if( isTemplate ){
+                    declStream  = &mOutput.mTemplatesDecl;
+                    defStream   = &mOutput.mTemplatesDef;
+                }
+                
+                
                 if( !hasPublicMethods ){
                     hasPublicMethods = true;
                     
-                    mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Methods( engine );" << endl;
+                    if( !isTemplate ){
+                        mOutput.mDefCalls << "\t\t" << "register" << classQualifiedStyledName << "Methods( engine );" << endl;
+                        
+                        (*declStream) << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
+                        (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine );" << endl;
+                        (*defStream) << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
+                        (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine )" << endl;
+                    }
+                    else {
+                        (*declStream) << "\t" << "//! registers " << classQualifiedName << " template methods" << endl;
+                        (*declStream) << "\t" << "template<typename T>" << endl;
+                        (*declStream) << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine, const std::string &name, const std::string &type, const std::string &suffix );" << endl;
+                        (*defStream) << "\t" << "//! registers " << classQualifiedName << " template methods" << endl;
+                        (*defStream) << "\t" << "template<typename T>" << endl;
+                        (*defStream) << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine, const std::string &name, const std::string &type, const std::string &suffix )" << endl;
+                    }
                     
-                    mOutput.mClassMethodDecl << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
-                    mOutput.mClassMethodDecl << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine );" << endl;
-                    
-                    // starting methods function
-                    mOutput.mClassMethodDef << "\t" << "//! registers " << classQualifiedName << " methods" << endl;
-                    mOutput.mClassMethodDef << "\t" << "void register" << classQualifiedStyledName << "Methods( asIScriptEngine* engine )" << endl;
-                    mOutput.mClassMethodDef << "\t" << "{" << endl;
-                    mOutput.mClassMethodDef << "\t\t" << "int r;" << endl;
-                    mOutput.mClassMethodDef << endl;
+                    (*defStream) << "\t" << "{" << endl;
+                    (*defStream) << "\t\t" << "int r;" << endl;
+                    (*defStream) << endl;
                     
                     // set the namespace
                     if( !classScope.empty() ){
-                        mOutput.mClassMethodDef << "\t\t" << "// set the current namespace " << endl;
-                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
-                        mOutput.mClassMethodDef << endl;
+                        (*defStream) << "\t\t" << "// set the current namespace " << endl;
+                        (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                        (*defStream) << endl;
                     }
                 }
                 
@@ -495,38 +716,134 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
                 // get return qualified type and function name
                 string returnQualifiedType  = getFunctionQualifiedReturnType( method );
                 string methodName           = getDeclarationName( method );
+                string methodCXXName        = methodName;
+                string asReturnType         = returnQualifiedType;
+                
+                if( method->getResultType().getTypePtr()->getTypeClass() != Type::TypeClass::Builtin && asReturnType.find( "const" ) == string::npos && asReturnType.find( "&" ) == string::npos ){
+                    asReturnType += "@";
+                }
+                
+                // change operators in methodName to supported operators
+                if( methodName.find( "operator" ) != string::npos ){
+                    map<string,string> operators = mOptions.getSupportedOperators();
+                    for( auto op : operators ){
+                        string newOp = methodName;
+                        boost::replace_all( newOp, op.first, "" );
+                        if( newOp.empty() ){
+                            boost::replace_all( methodName, op.first, op.second );
+                        }
+                    }
+                }
                 
                 // register the method
                 // if method is not static declare it as ObjectMethod
                 if( !method->isStatic() ){
                     if( isStaticNamespace ){
-                        mOutput.mClassMethodDef << endl;
-                        mOutput.mClassMethodDef << "\t\t" << "// set back the current namespace " << endl;
-                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
-                        mOutput.mClassMethodDef << endl;
+                        (*defStream) << endl;
+                        (*defStream) << "\t\t" << "// set back the current namespace " << endl;
+                        (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( classScope ) + " ); assert( r >= 0 );" << endl;
+                        (*defStream) << endl;
                         
                         isStaticNamespace = false;
                     }
                     
+                    // comment if we detect an unsupported type
+                    bool isCommented = false;
                     if( !isSupported( returnQualifiedType + methodName + params + paramsTypes + returnQualifiedType ) ){
-                        mOutput.mClassMethodDef << "//";
+                        (*defStream) << "//";
+                        isCommented = true;
                     }
-                    mOutput.mClassMethodDef << "\t\t" << "r = engine->RegisterObjectMethod( " << quote( className ) << ", " << quote( returnQualifiedType + " " + methodName + params ) << ", asMETHODPR( " << classQualifiedName <<  ", " << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_THISCALL ); assert( r >= 0 );" << endl;
+                    
+                    // if we still have "operator" in the method, then it means that it's not supported so comment it
+                    if( methodName.find( "operator" ) != string::npos ){
+                        (*defStream) << "//";
+                        isCommented = true;
+                    }
+                    
+                    // output the method
+                    string asMethodDecl = quote( asReturnType + " " + methodName + params );
+                    
+                    // TODO (Add as options?)
+                    boost::replace_all( asMethodDecl, "std::string", "string" );
+                    
+                        if( !isTemplate ){
+                            if( isConstructor ){
+                                mOutput.mClassExtras << "\t\t" << "static " << classQualifiedName << "* create" << params << endl;
+                                mOutput.mClassExtras << "\t\t" << "{" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << classQualifiedName << " *ref = new " << classQualifiedName << "();" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << "addRef( ref );" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << "return ref;" << endl;
+                                mOutput.mClassExtras << "\t\t" << "}" << endl;
+                                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( " << quote( className ) << ", asBEHAVE_FACTORY, " << quote( className + "@ f" + paramsTypes  ) << ", asFUNCTIONPR( " << classQualifiedStyledName << "Factory::create, " << paramsTypes << "," << classQualifiedName << "* ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+                            }
+                            else if( !isDestructor ){
+                                (*defStream) << "\t\t" << "r = engine->RegisterObjectMethod( " << quote( className ) << ", " << asMethodDecl << ", asMETHODPR( " << classQualifiedName <<  ", " << methodCXXName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_THISCALL ); assert( r >= 0 );" << endl;
+                            }
+                        }
+                        else {
+                            string paramsAsTypes = paramsTypes;
+                            if( !isCommented ){
+                                boost::replace_all( asMethodDecl, templateClassQualifiedName, "\" + name + \"" );
+                                boost::replace_all( asMethodDecl, templateClassName, "\" + name + \"" );
+                                boost::replace_all( asMethodDecl, classQualifiedName, "\" + name + \"" );
+                                boost::replace_all( asMethodDecl, "<T>", "\" + suffix + \"" );
+                                boost::replace_all( asMethodDecl, " T", "\" + type + \"" );
+                                boost::replace_all( asMethodDecl, "\"\" + ", "" );
+                                boost::replace_all( asMethodDecl, " + \"\"", "" );
+                                
+                                boost::replace_all( paramsAsTypes, templateClassQualifiedName, "\" + name + \"" );
+                                boost::replace_all( paramsAsTypes, templateClassName, "\" + name + \"" );
+                                boost::replace_all( paramsAsTypes, classQualifiedName, "\" + name + \"" );
+                                boost::replace_all( paramsAsTypes, "<T>", "\" + suffix + \"" );
+                                boost::replace_all( paramsAsTypes, "T", "\" + type + \"" );
+                                boost::replace_all( paramsAsTypes, "\"\" + ", "" );
+                                boost::replace_all( paramsAsTypes, " + \"\"", "" );
+                            }
+                            
+                            if( isConstructor ){
+                                mOutput.mClassExtras << "\t\t" << "static " << templateClassQualifiedName << "* create" << params << endl;
+                                mOutput.mClassExtras << "\t\t" << "{" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << templateClassQualifiedName << " *ref = new " << templateClassQualifiedName << "();" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << "addRef( ref );" << endl;
+                                mOutput.mClassExtras << "\t\t\t" << "return ref;" << endl;
+                                mOutput.mClassExtras << "\t\t" << "}" << endl;
+                                (*defStream) << "\t\t" << "r = engine->RegisterObjectBehaviour( name.c_str(), asBEHAVE_FACTORY, std::string( name + \"@ f" << paramsAsTypes << "\" ).c_str(), asFUNCTIONPR( " << classQualifiedStyledName << "Factory<T>::create, " << paramsTypes << ", " << templateClassQualifiedName << "* ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+                            }
+                            else if( !isDestructor ){
+                                asMethodDecl = "std::string( " + asMethodDecl + " ).c_str()";
+                                (*defStream) << "\t\t" << "r = engine->RegisterObjectMethod( name.c_str(), " << asMethodDecl << ", asMETHODPR( " << templateClassQualifiedName <<  ", " << methodCXXName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_THISCALL ); assert( r >= 0 );" << endl;
+                            }
+                        }
+                    
+                    
                 }
                 // else declare it as GlobalFunction with a namespace
                 else {
                     if( !isStaticNamespace ){
-                        mOutput.mClassMethodDef << endl;
-                        mOutput.mClassMethodDef << "\t\t" << "// set static namespace " << endl;
-                        mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( ( !classScope.empty() ? classScope + "::" : "" ) + className ) + "); assert( r >= 0 );" << endl;
-                        mOutput.mClassMethodDef << endl;
+                        (*defStream) << endl;
+                        (*defStream) << "\t\t" << "// set static namespace " << endl;
+                        if( !isTemplate ){
+                            (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( " + quote( ( !classScope.empty() ? classScope + "::" : "" ) + className ) + "); assert( r >= 0 );" << endl;
+                        }
+                        else {
+                            (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace( std::string(" + quote( ( !classScope.empty() ? classScope + "::" : "" ) ) << " + name  ).c_str() ); assert( r >= 0 );" << endl;
+                        }
+                        (*defStream) << endl;
                         
                         isStaticNamespace = true;
                     }
+                    
+                    // comment if we detect an unsupported type
                     if( !isSupported( returnQualifiedType + methodName + params + paramsTypes + returnQualifiedType ) ){
-                        mOutput.mClassMethodDef << "//";
+                        (*defStream) << "//";
                     }
-                    mOutput.mClassMethodDef << "\t\t" << "r = engine->RegisterGlobalFunction( " << quote( returnQualifiedType + " " + methodName + params ) << ", asFUNCTIONPR( " << classQualifiedName <<  "::" << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+                    
+                    if( !isTemplate ){
+                        (*defStream) << "\t\t" << "r = engine->RegisterGlobalFunction( " << quote( returnQualifiedType + " " + methodName + params ) << ", asFUNCTIONPR( " << templateClassQualifiedName <<  "::" << methodName << ", " << paramsTypes << ", " << returnQualifiedType << " ), asCALL_CDECL ); assert( r >= 0 );" << endl;
+                    }
+                    else {
+                        
+                    }
                 }
             }
         }
@@ -536,15 +853,49 @@ bool Parser::Visitor::VisitCXXRecordDecl(clang::CXXRecordDecl *declaration)
             
             // close the namespace
             if( !classScope.empty() || isStaticNamespace ){
-                mOutput.mClassMethodDef << endl;
-                mOutput.mClassMethodDef << "\t\t" << "// set back to empty default namespace " << endl;
-                mOutput.mClassMethodDef << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
+                (*defStream) << endl;
+                (*defStream) << "\t\t" << "// set back to empty default namespace " << endl;
+                (*defStream) << "\t\t" << "r = engine->SetDefaultNamespace(\"\"); assert( r >= 0 );" << endl;
             }
             
             
             // closing methods function
-            mOutput.mClassMethodDef << "\t" << "}" << endl;
-            mOutput.mClassMethodDef << endl;
+            (*defStream) << "\t" << "}" << endl;
+            (*defStream) << endl;
+            
+            mOutput.mClassesWithMethods.push_back( mangleName );
+        }
+        
+        
+        if( !declaration->isEmpty() ){
+            
+            // finish object factory
+            string qualifiedName = classQualifiedName;
+            if( isTemplate ){
+                qualifiedName = templateClassQualifiedName;
+            }
+            mOutput.mClassExtras << "\t\t" << "static void addRef( " << qualifiedName << " *ptr )" << endl;
+            mOutput.mClassExtras << "\t\t" << "{" << endl;
+            mOutput.mClassExtras << "\t\t\t" << "typename std::map<" << qualifiedName << "*,uint32_t>::iterator it = sRefs.find( ptr );" << endl;
+            mOutput.mClassExtras << "\t\t\t" << "if( it != sRefs.end() ){" << endl;
+            mOutput.mClassExtras << "\t\t\t\t" << "it->second++;" << endl;
+            mOutput.mClassExtras << "\t\t\t" << "}" << endl;
+            mOutput.mClassExtras << "\t\t\t" << "else {" << endl;
+            mOutput.mClassExtras << "\t\t\t\t" << "sRefs.insert( std::make_pair( ptr, 1 ) );" << endl;
+            mOutput.mClassExtras << "\t\t\t" << "}" << endl;
+            mOutput.mClassExtras << "\t\t" << "}" << endl;
+            mOutput.mClassExtras << endl;
+            mOutput.mClassExtras << "\t\t" << "static void release( " << qualifiedName << " *ptr )" << endl;
+            mOutput.mClassExtras << "\t\t" << "{" << endl;
+            mOutput.mClassExtras << "\t\t" << "}" << endl;
+            mOutput.mClassExtras << endl;
+            mOutput.mClassExtras << "\t" << "protected:" << endl;
+            mOutput.mClassExtras << "\t\t" << "static std::map<" << qualifiedName << "*, uint32_t> sRefs;" << endl;
+            mOutput.mClassExtras << "\t" << "};" << endl;
+            if( !isTemplate ) mOutput.mClassExtras << "\t" << "std::map<" << qualifiedName << "*, uint32_t> " << classQualifiedStyledName << "Factory::sRefs;" << endl;
+            else mOutput.mClassExtras << "\t" << "template<typename T> std::map<" << qualifiedName << "*, uint32_t> " << classQualifiedStyledName << "Factory<T>::sRefs;" << endl;
+            mOutput.mClassExtras << endl;
+            
         }
     }
     return true;
@@ -561,7 +912,7 @@ bool Parser::Visitor::VisitFunctionDecl( clang::FunctionDecl *function )
         // get return qualified type and function name
         string returnQualifiedType  = getFunctionQualifiedReturnType( function );
         string functionName         = getDeclarationName( function );
-        string scope                = getFullScope( function->getDeclContext(), "" );
+        string scope                = getFullScope( function->getDeclContext() );
         
         // change scope
         if( !scope.empty() && scope != mOutput.mCurrentFunctionScope ){
@@ -572,7 +923,7 @@ bool Parser::Visitor::VisitFunctionDecl( clang::FunctionDecl *function )
             mOutput.mCurrentFunctionScope = scope;
         }
         
-        if( !isSupported( returnQualifiedType + params + paramsTypes ) ){
+        if( !isSupported( returnQualifiedType + params + paramsTypes ) || function->getTemplatedKind() != FunctionDecl::TemplatedKind::TK_NonTemplate ){
             mOutput.mFunctionDef << "//";
         }
         
@@ -593,6 +944,8 @@ std::string Parser::Visitor::getFullScope( DeclContext* declarationContext, cons
         if( context->isNamespace() ){
             NamespaceDecl* ns = static_cast<NamespaceDecl*>( context );
             
+            // TODO remove! Quick hack to get rid of namespaces
+            break;
             string nsName = ns->getNameAsString();
             if( mNamespaceAliases.count( nsName ) > 0 ){
                 nsName = mNamespaceAliases[nsName]->getNameAsString();
@@ -661,6 +1014,11 @@ std::string Parser::Visitor::getClassScope( const clang::QualType& type, const s
 
 //! returns the name of a Declaration
 std::string Parser::Visitor::getDeclarationName( clang::NamedDecl* declaration )
+{
+    return declaration->getNameAsString();
+}
+//! returns the name of a Declaration
+std::string Parser::Visitor::getDeclarationName( const clang::NamedDecl* declaration )
 {
     return declaration->getNameAsString();
 }
@@ -802,6 +1160,14 @@ std::string Parser::Visitor::getFunctionReturnType( clang::FunctionDecl *functio
 std::string Parser::Visitor::getFunctionQualifiedReturnType( clang::FunctionDecl *function )
 {
     return getTypeQualifiedName( function->getResultType() );
+}
+//! returns the unique name of a declaration
+std::string Parser::Visitor::getMangleName( clang::NamedDecl *declaration ){
+    MangleContext* mangle = mContext->createMangleContext();
+    string name;
+    llvm::raw_string_ostream stringOstream( name );
+    mangle->mangleCXXName( declaration, stringOstream );
+    return stringOstream.str();
 }
 
 //! replaces namespaces by aliases and returns the corrected string

@@ -64,7 +64,7 @@ int main(int argc, const char * argv[])
     .inputDirectory( "/Frameworks/Cinder/cinder_master/include/cinder" )
     .outputDirectory( "/Users/simongeilfus/Desktop/RegistrationTest/src" )
     .inputFileList( {
-        "/Frameworks/Cinder/cinder_master/include/cinder/Arcball.h",
+        /*"/Frameworks/Cinder/cinder_master/include/cinder/Arcball.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/Area.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/AxisAlignedBox.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/Camera.h",
@@ -82,14 +82,13 @@ int main(int argc, const char * argv[])
         "/Frameworks/Cinder/cinder_master/include/cinder/gl/Material.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/gl/Texture.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/gl/TextureFont.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/gl/Fbo.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/gl/Vbo.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/ImageIo.h",
         "/Frameworks/Cinder/cinder_master/include/cinder/Json.h",
-        "/Frameworks/Cinder/cinder_master/include/cinder/ObjLoader.h"
-        //"/Frameworks/Cinder/cinder_master/include/cinder/Color.h"
-        //"/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
-        //"/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/ObjLoader.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Rect.h",
+        "/Frameworks/Cinder/cinder_master/include/cinder/Vector.h",*/
+        "/Frameworks/Cinder/cinder_master/include/cinder/Color.h"//,
         //"/Frameworks/Cinder/cinder_master/include/cinder/Matrix44.h"
     } )
     .excludeDirectoryList( {
@@ -179,7 +178,46 @@ POSSIBILITY OF SUCH DAMAGE.\n\
         "std::pair",
         "boost::container",
         "NodeType",
-        "std::ostream"
+        "std::ostream",
+        "type-parameter",
+        "typename",
+        "DIST",
+        "Vec3f"
+    })
+    .supportedOperators( {
+        { "operator++",	"opPostInc" },
+        { "operator–",	"opPostDec" },
+        { "operator==",	"opEquals" },
+        //{ "operator!=",	"opEquals" },
+        { "operator<",	"opCmp" },
+        { "operator<=",	"opCmp" },
+        { "operator>",	"opCmp" },
+        { "operator>=",	"opCmp" },
+        { "operator=",	"opAssign" },
+        { "operator+=",	"opAddAssign" },
+        { "operator-=",	"opSubAssign" },
+        { "operator*=",	"opMulAssign" },
+        { "operator/=",	"opDivAssign" },
+        { "operator%=",	"opModAssign" },
+        { "operator**=",	"opPowAssign" },
+        { "operator&=",	"opAndAssign" },
+        { "operator|=",	"opOrAssign" },
+        { "operator^=",	"opXorAssign" },
+        { "operator<<=",	"opShlAssign" },
+        { "operator>>=",	"opShrAssign" },
+        { "operator>>>=",	"opUShrAssign" },
+        { "operator+",	"opAdd" },
+        { "operator-",	"opSub" },
+        { "operator*",	"opMul" },
+        { "operator/",	"opDiv" },
+        { "operator%",	"opMod" },
+        { "operator**",	"opPow" },
+        { "operator&",	"opAnd" },
+        { "operator|",	"opOr" },
+        { "operator^",	"opXor" },
+        { "operator<<",	"opShl" },
+        { "operator>>",	"opShr" },
+        { "operator>>>",	"opUShr" }    
     })
     ;
     
